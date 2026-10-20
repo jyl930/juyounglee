@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Juyoung Lee — 이주영</title>
+  <meta name="description" content="Juyoung Lee (이주영) — spatial researcher and designer based in Seoul. Material, public, virtual space and UX/UI work, and research.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-view="index">
+
+  <header class="top">
+    <a class="id" href="#/" data-link>
+      <span>Juyoung Lee</span><span class="ko">이주영</span>
+    </a>
+    <nav class="nav">
+      <a href="#/" data-link data-nav="index">Index</a>
+      <a href="#/research" data-link data-nav="research">Research</a>
+      <a href="#/about" data-link data-nav="about">About</a>
+    </nav>
+    <div class="meta mono">
+      <span id="loc"></span>
+      <span id="clock"></span>
+    </div>
+  </header>
+
+  <!-- INDEX ─ query + field/list -->
+  <main id="view-index" class="view">
+    <section class="query">
+      <label class="mono q-prefix" for="q">juyoung&nbsp;lee&nbsp;/</label>
+      <div class="q-wrap">
+        <input id="q" class="q-input" type="text" autocomplete="off" spellcheck="false" aria-label="Search projects">
+        <span class="q-ghost" aria-hidden="true"><span id="q-text"></span><i class="caret"></i></span>
+      </div>
+      <span class="mono q-count" id="q-count"></span>
+    </section>
+
+    <div class="tools mono">
+      <div class="filters" id="filters"></div>
+      <div class="modes">
+        <button data-mode="field" class="on">Field</button>
+        <button data-mode="list">List</button>
+      </div>
+    </div>
+
+    <section class="field" id="field" aria-label="Projects plotted by year and scale">
+      <div class="axis-y mono" id="axis-y"></div>
+      <div class="plane" id="plane">
+        <div class="cross cross-x"></div>
+        <div class="cross cross-y"></div>
+        <div class="readout mono" id="readout"></div>
+        <div class="marks" id="marks"></div>
+        <div class="tip" id="tip"></div>
+      </div>
+      <div class="axis-x mono" id="axis-x"></div>
+    </section>
+
+    <section class="list" id="list" hidden>
+      <div class="row head mono">
+        <span>No.</span><span>Title</span><span>Type</span><span>Venue</span><span>Year</span>
+      </div>
+      <div id="rows"></div>
+      <div class="hover-img" id="hover-img"></div>
+    </section>
+  </main>
+
+  <!-- RESEARCH -->
+  <main id="view-research" class="view" hidden>
+    <div class="page">
+      <aside class="page-side mono">Research</aside>
+      <div class="page-body">
+        <p class="lead" id="research-lead"></p>
+        <h3 class="mono label">Interests</h3>
+        <ol class="interests" id="interests"></ol>
+        <h3 class="mono label">Publications</h3>
+        <div id="pubs"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ABOUT -->
+  <main id="view-about" class="view" hidden>
+    <div class="page">
+      <aside class="page-side mono">About</aside>
+      <div class="page-body">
+        <p class="lead" id="bio-ko"></p>
+        <p class="sub" id="bio-en"></p>
+        <div id="cv"></div>
+        <h3 class="mono label">Contact</h3>
+        <p class="contact" id="contact"></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- PROJECT SHEET -->
+  <div class="scrim" id="scrim"></div>
+  <article class="sheet" id="sheet" aria-hidden="true">
+    <div class="sheet-bar mono">
+      <span id="s-no"></span>
+      <div>
+        <button id="s-prev" aria-label="Previous">←</button>
+        <button id="s-next" aria-label="Next">→</button>
+        <button id="s-close" aria-label="Close">Close</button>
+      </div>
+    </div>
+    <div class="sheet-body" id="sheet-body"></div>
+  </article>
+
+  <footer class="foot mono">
+    <span>© <span id="yr"></span> Juyoung Lee</span>
+    <span>Plotted by year × scale</span>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
