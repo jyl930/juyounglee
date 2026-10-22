@@ -7,9 +7,19 @@ index.html      structure
 css/style.css   design (white, minimal, mono labels + one accent)
 js/data.js      ← all content: projects, papers, bio, CV
 js/main.js      field / list / sheet / routing
+js/intro.js     opening drawing (canvas animation)
 ```
 
 Preview locally: `python3 -m http.server` → http://localhost:8000
+
+## Opening — uncertainty → analysis → space
+
+The first screen is a live canvas drawing (not a video file — sharp at any
+size, ~0 KB of media). Tangled lines resolve into rays that meet at one
+point; from there a 3D Hilbert curve fills a cube, order n=1 → 5, until it
+reads as a solid. The cursor pushes the lines aside and turns the cubes.
+Click to skip, click again (or `Index ↓`) to go to the index. Labels live in
+`SITE.intro.labels`. Respects `prefers-reduced-motion` (shows the final frame).
 
 ## Concept — "Field"
 

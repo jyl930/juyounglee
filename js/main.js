@@ -258,11 +258,12 @@
     }
     closeSheet();
     const view = h === "#/research" ? "research" : h === "#/about" ? "about" : "index";
+    const changed = lastView !== h || document.body.dataset.view !== view;
     lastView = h;
     document.body.dataset.view = view;
     $$(".view").forEach(v => (v.hidden = v.id !== `view-${view}`));
     $$("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === view));
-    window.scrollTo(0, 0);
+    if (changed) window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", route);
 

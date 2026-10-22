@@ -23,6 +23,11 @@ window.SITE = {
     { label: "Instagram", href: "#" }       // TODO
   ],
 
+  // 첫 화면 애니메이션의 세 단계 라벨 (엉킨 선 → 수렴 → 채워지는 공간)
+  intro: {
+    labels: ["Uncertainty", "Analysis", "Space"]
+  },
+
   // 메인 화면 질의창에 자동으로 타이핑되는 문장들
   queries: [
     "material re-exploration",

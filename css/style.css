@@ -45,6 +45,24 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .nav a.on::before { content: "● "; color: var(--accent); font-size: 8px; vertical-align: 2px; }
 .meta { justify-self: end; display: flex; gap: 18px; color: var(--mid); }
 
+/* ── intro drawing ────────────────────── */
+.intro {
+  position: relative;
+  height: max(520px, calc(100svh - 58px));
+  cursor: crosshair;
+}
+.intro canvas { position: absolute; inset: 0; display: block; }
+.intro-cap {
+  position: absolute; left: var(--gut); right: var(--gut); bottom: 18px;
+  display: flex; justify-content: space-between; gap: 16px; color: var(--mid);
+  pointer-events: none;
+}
+.intro-cap > span { background: #fff; padding: 2px 0; box-shadow: 0 0 0 6px #fff; }
+.intro-act { display: flex; gap: 18px; pointer-events: auto; }
+.intro-act button { color: var(--mid); transition: color .2s; }
+.intro-act button:hover { color: var(--accent); }
+#index-body { border-top: 1px solid var(--line); }
+
 /* ── query ──────────────────────────────── */
 .query {
   display: flex; align-items: baseline; gap: 14px;
@@ -257,6 +275,8 @@ body.sheet-open .sheet { transform: none; }
   .top { grid-template-columns: 1fr auto; row-gap: 6px; }
   .meta { display: none; }
   .query { flex-wrap: wrap; padding-top: 6vh; }
+  .intro-cap > span:first-child { display: none; }
+  .intro-act { margin-left: auto; }
   .q-prefix { width: 100%; }
   .field { grid-template-columns: 54px 1fr; }
   .axis-y span em { display: none; }

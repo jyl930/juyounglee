@@ -30,6 +30,15 @@
 
   <!-- INDEX ─ query + field/list -->
   <main id="view-index" class="view">
+    <section class="intro" id="intro" aria-label="Uncertainty, analysis, space — an animated drawing">
+      <canvas></canvas>
+      <div class="intro-cap mono">
+        <span>Juyoung Lee — Spatial research &amp; design, Seoul</span>
+        <span class="intro-act"><button data-replay>Replay</button><button data-down>Index ↓</button></span>
+      </div>
+    </section>
+
+    <div id="index-body">
     <section class="query">
       <label class="mono q-prefix" for="q">juyoung&nbsp;lee&nbsp;/</label>
       <div class="q-wrap">
@@ -66,6 +75,7 @@
       <div id="rows"></div>
       <div class="hover-img" id="hover-img"></div>
     </section>
+    </div>
   </main>
 
   <!-- RESEARCH -->
@@ -117,5 +127,6 @@
 
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/intro.js"></script>
 </body>
 </html>
