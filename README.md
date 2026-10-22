@@ -12,14 +12,21 @@ js/intro.js     opening drawing (canvas animation)
 
 Preview locally: `python3 -m http.server` → http://localhost:8000
 
-## Opening — uncertainty → analysis → space
+## Opening — line → plan → space
 
 The first screen is a live canvas drawing (not a video file — sharp at any
-size, ~0 KB of media). Tangled lines resolve into rays that meet at one
-point; from there a 3D Hilbert curve fills a cube, order n=1 → 5, until it
-reads as a solid. The cursor pushes the lines aside and turns the cubes.
-Click to skip, click again (or `Index ↓`) to go to the index. Labels live in
-`SITE.intro.labels`. Respects `prefers-reduced-motion` (shows the final frame).
+size, no media to load). One continuous line does three things in place:
+
+1. **Line** — a free pen line wanders across the page (uncertainty).
+2. **Plan** — point by point, the same line snaps into a floor plan: a loop
+   traced around a random spanning tree of unequal bays, so it reads as
+   rooms and walls with thickness (analysis).
+3. **Space** — the camera tilts from plan to axonometric and the walls rise;
+   a red point walks the loop (space as experienced).
+
+The cursor pushes the free line aside, turns the model, and raises walls
+near it. Click to skip, click again (or `Index ↓`) to reach the index.
+`Replay` generates a new plan each time. Respects `prefers-reduced-motion`.
 
 ## Concept — "Field"
 

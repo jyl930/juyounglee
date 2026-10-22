@@ -1,277 +1,259 @@
 /*
- * Intro drawing — uncertainty → analysis → space.
- * Tangled lines resolve into rays that meet at one point, and from that point
- * a 3D Hilbert curve fills a cube order by order until it reads as a solid.
- * Drawn live on canvas (no video): sharp at any size, reacts to the cursor.
+ * Intro drawing — one line, three states.
+ *   01 Line   a single free pen line wanders across the page
+ *   02 Plan   the same line snaps, point by point, into a floor plan
+ *   03 Space  the camera tilts, the walls rise, and someone walks through it
+ * Everything is one closed loop in one 3D frame; only the camera and the
+ * point positions change. Drawn live on canvas: sharp, light, reacts to the cursor.
  */
 (() => {
   const root = document.getElementById("intro");
   if (!root) return;
   const cv = root.querySelector("canvas"), ctx = cv.getContext("2d");
-  const LABELS = (window.SITE.intro && window.SITE.intro.labels) || ["Uncertainty", "Analysis", "Space"];
-  const INK = "#111", MID = "#9a9a9a", ACCENT = "#ff4a1c";
+  const steps = [...root.querySelectorAll("[data-step]")];
+  const INK = "#111", ACCENT = "#ff4a1c";
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // timeline (seconds)
-  const T_TANGLE = 0, T_RAYS = 3.2, T_AXIS = 4.4, T_CUBES = 4.9, CUBE_GAP = 0.8, CUBE_DUR = 1.5;
-  const ORDERS = [1, 2, 3, 4, 5];
-  const END = T_CUBES + ORDERS.length * CUBE_GAP + CUBE_DUR + 0.6;
+  const T_PLAN = 3.4, T_SPACE = 6.8, END = 9.6;
 
-  /* ── seeded randomness so the drawing is the same on every visit ── */
-  let seed = 7;
+  let seed = 11;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
-
-  /* ── tangled lines, in flow coordinates: u runs toward the nodes (0 → 1),
-        v runs across (−0.5 … 0.5). Layout maps them to the screen. ── */
-  const N = 13;
-  const tangles = Array.from({ length: N }, () => {
-    const pts = [], k = 4 + Math.floor(rnd() * 3);
-    const edge = rnd();
-    pts.push(edge < 0.45 ? [-0.15, rnd() - 0.5] : [rnd() * 0.6, edge < 0.72 ? -0.8 : 0.8]);
-    for (let i = 1; i <= k; i++) {
-      const u = Math.min(0.82, (i / (k + 1)) * 0.95 + (rnd() - 0.5) * 0.45);   // sometimes doubles back → loops
-      pts.push([u, (rnd() - 0.5) * 0.95]);
-    }
-    return { pts, phase: rnd() * Math.PI * 2, delay: rnd() * 0.9 };
-  });
-
-  /* ── 3D Hilbert curve (Skilling's transpose → axes) ── */
-  function hilbert(bits) {
-    const n = 3, total = 1 << (bits * n), side = 1 << bits, out = new Float32Array(total * 3);
-    for (let h = 0; h < total; h++) {
-      const X = [0, 0, 0];
-      for (let k = 0; k < bits * n; k++) {
-        const bit = (h >> (bits * n - 1 - k)) & 1;
-        X[k % n] |= bit << (bits - 1 - Math.floor(k / n));
-      }
-      let t = X[n - 1] >> 1;
-      for (let i = n - 1; i > 0; i--) X[i] ^= X[i - 1];
-      X[0] ^= t;
-      for (let Q = 2; Q < side; Q <<= 1) {
-        const P = Q - 1;
-        for (let i = n - 1; i >= 0; i--) {
-          if (X[i] & Q) X[0] ^= P;
-          else { t = (X[0] ^ X[i]) & P; X[0] ^= t; X[i] ^= t; }
-        }
-      }
-      for (let d = 0; d < 3; d++) out[h * 3 + d] = (2 * X[d] + 1) / side - 1;
-    }
-    return out;
-  }
-  const curves = ORDERS.map(hilbert);
-  const CORNERS = [];
-  for (let i = 0; i < 8; i++) CORNERS.push([i & 1 ? 1 : -1, i & 2 ? 1 : -1, i & 4 ? 1 : -1]);
-
-  /* ── layout ── */
-  let W, H, L;
-  function layout() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = root.clientWidth; H = root.clientHeight;
-    cv.width = W * dpr; cv.height = H * dpr;
-    cv.style.width = W + "px"; cv.style.height = H + "px";
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    if (W / H >= 0.9) {
-      const F = [W * 0.5, H * 0.5], gap = Math.min(H * 0.03, 22);
-      const a = [W * 0.575, H * 0.57], b = [W * 0.93, H * 0.36];
-      const cubes = ORDERS.concat(0).map((_, i, arr) => [a[0] + (b[0] - a[0]) * i / (arr.length - 1), a[1] + (b[1] - a[1]) * i / (arr.length - 1)]);
-      const spacing = Math.hypot(b[0] - a[0], b[1] - a[1]) / 5;
-      L = {
-        map: (u, v) => [-0.03 * W + u * 0.25 * W, H * (0.48 + v * 0.66)],
-        back: [-1, 0],
-        nodes: tangles.map((_, i) => [W * 0.27, F[1] + (i - (N - 1) / 2) * gap]),
-        F, cubes, s: Math.min(spacing * 0.29, H * 0.075),
-        labels: [[W * 0.115, H * 0.5], [(W * 0.27 + F[0]) / 2 + 10, F[1]], null]
-      };
-    } else {
-      // portrait: lines fall from the top, cubes sit in a 3 × 2 grid below
-      const F = [W * 0.5, H * 0.5], gap = Math.min(W * 0.045, 18);
-      const cubes = [], rows = [H * 0.64, H * 0.8], cols = [W * 0.2, W * 0.5, W * 0.8];
-      rows.forEach(y => cols.forEach(x => cubes.push([x, y])));
-      L = {
-        map: (u, v) => [W * (0.5 + v * 1.1), 0.01 * H + u * 0.29 * H],
-        back: [0, -1],
-        nodes: tangles.map((_, i) => [F[0] + (i - (N - 1) / 2) * gap, H * 0.34]),
-        F, cubes, s: Math.min(W * 0.075, H * 0.04), axisTo: 1, spaceBelow: true,
-        labels: [[W * 0.5, H * 0.15], [F[0], (H * 0.34 + F[1]) / 2 + 2], null]
-      };
-    }
-  }
-
-  /* ── helpers ── */
   const clamp = v => Math.max(0, Math.min(1, v));
   const ease = v => (v = clamp(v), v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2);
   const prog = (t, start, dur) => ease((t - start) / dur);
+  const lerp = (a, b, k) => a + (b - a) * k;
 
+  /* ── the plan: a random spanning tree over a grid of bays of unequal size.
+        Walking around the tree gives one closed loop that reads as walls with
+        thickness — rooms where bays join, thin partitions where they don't. ── */
+  function makePlan(cols, rows) {
+    const id = (x, y) => y * cols + x, key = (a, b) => (a < b ? a + "," + b : b + "," + a);
+    const link = new Set(), seen = new Set([0]), stack = [[0, 0]];
+    while (stack.length) {
+      const [x, y] = stack[stack.length - 1];
+      const nb = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => [x + dx, y + dy])
+        .filter(([a, b]) => a >= 0 && b >= 0 && a < cols && b < rows && !seen.has(id(a, b)));
+      if (!nb.length) { stack.pop(); continue; }
+      const [a, b] = nb[Math.floor(rnd() * nb.length)];
+      seen.add(id(a, b)); link.add(key(id(x, y), id(a, b)));
+      stack.push([a, b]);
+    }
+    const linked = (x1, y1, x2, y2) => x2 >= 0 && y2 >= 0 && x2 < cols && y2 < rows && link.has(key(id(x1, y1), id(x2, y2)));
+
+    // fine grid: two nodes per bay — a wide gap inside a bay, a thin gap (the wall) between bays
+    const axis = n => {
+      const pos = [0], wall = 0.14;
+      for (let i = 0; i < n; i++) { pos.push(pos[pos.length - 1] + 0.75 + rnd() * 0.9); if (i < n - 1) pos.push(pos[pos.length - 1] + wall); }
+      return pos;
+    };
+    const X = axis(cols), Y = axis(rows);
+    // is there a loop edge between fine node (x,y) and its right / lower neighbour?
+    const right = (x, y) => {
+      const cx = x >> 1, cy = y >> 1;
+      return x % 2 === 0 ? !linked(cx, cy, cx, y % 2 ? cy + 1 : cy - 1) : linked(cx, cy, cx + 1, cy);
+    };
+    const down = (x, y) => {
+      const cx = x >> 1, cy = y >> 1;
+      return y % 2 === 0 ? !linked(cx, cy, x % 2 ? cx + 1 : cx - 1, cy) : linked(cx, cy, cx, cy + 1);
+    };
+    const loop = [[0, 0]];
+    let prev = [-1, -1], cur = [0, 0];
+    for (let guard = 0; guard < cols * rows * 4; guard++) {
+      const [x, y] = cur, opts = [];
+      if (x + 1 < cols * 2 && right(x, y)) opts.push([x + 1, y]);
+      if (x > 0 && right(x - 1, y)) opts.push([x - 1, y]);
+      if (y + 1 < rows * 2 && down(x, y)) opts.push([x, y + 1]);
+      if (y > 0 && down(x, y - 1)) opts.push([x, y - 1]);
+      const next = opts.find(p => p[0] !== prev[0] || p[1] !== prev[1]);
+      if (!next || (next[0] === 0 && next[1] === 0)) break;
+      loop.push(next); prev = cur; cur = next;
+    }
+    // centre on the origin, longest side = 2, keep only the corners
+    const w = X[X.length - 1], d = Y[Y.length - 1], k = 2 / Math.max(w, d);
+    const pts = loop.map(([x, y]) => [(X[x] - w / 2) * k, (Y[y] - d / 2) * k]);
+    return pts.filter((p, i) => {
+      const a = pts[(i - 1 + pts.length) % pts.length], b = pts[(i + 1) % pts.length];
+      return Math.abs((p[0] - a[0]) * (b[1] - p[1]) - (p[1] - a[1]) * (b[0] - p[0])) > 1e-9;
+    });
+  }
+
+  /* ── the free line: a smooth random walk, resampled to match the plan ── */
   function catmull(pts, steps) {
     const out = [];
     for (let i = 0; i < pts.length - 1; i++) {
       const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
       for (let s = 0; s < steps; s++) {
         const t = s / steps, t2 = t * t, t3 = t2 * t;
-        out.push([
-          0.5 * (2 * p1[0] + (-p0[0] + p2[0]) * t + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3),
-          0.5 * (2 * p1[1] + (-p0[1] + p2[1]) * t + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3)
-        ]);
+        out.push([0, 1].map(j => 0.5 * (2 * p1[j] + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2 + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3)));
       }
     }
     out.push(pts[pts.length - 1]);
     return out;
   }
+  function resample(path, n) {
+    const acc = [0];
+    for (let i = 1; i < path.length; i++) acc.push(acc[i - 1] + Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]));
+    const total = acc[acc.length - 1], out = [];
+    for (let k = 0, j = 1; k < n; k++) {
+      const s = (k / (n - 1)) * total;
+      while (j < acc.length - 1 && acc[j] < s) j++;
+      const f = (s - acc[j - 1]) / (acc[j] - acc[j - 1] || 1);
+      out.push([lerp(path[j - 1][0], path[j][0], f), lerp(path[j - 1][1], path[j][1], f)]);
+    }
+    return out;
+  }
 
-  function label(text, x, y, alpha, color = INK) {
-    if (alpha <= 0) return;
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.font = '500 11px "IBM Plex Mono", ui-monospace, monospace';
-    const s = text.toUpperCase().split("").join(" "), w = ctx.measureText(s).width;
-    ctx.fillStyle = "#fff"; ctx.fillRect(x - w / 2 - 8, y - 10, w + 16, 20);
-    ctx.fillStyle = color; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(s, x, y + 0.5);
-    ctx.restore();
+  /* ── build: plan corners, plan samples (corners kept exact), matching free line ── */
+  let plan, planS, freeS, perim, cum;
+  function build(portrait) {
+    plan = portrait ? makePlan(4, 6) : makePlan(7, 4);
+    const closed = plan.concat([plan[0]]);
+    cum = [0];
+    for (let i = 1; i < closed.length; i++) cum.push(cum[i - 1] + Math.hypot(closed[i][0] - closed[i - 1][0], closed[i][1] - closed[i - 1][1]));
+    perim = cum[cum.length - 1];
+    planS = [];
+    for (let i = 0; i < plan.length; i++) {
+      const a = closed[i], b = closed[i + 1], n = Math.max(1, Math.round(((cum[i + 1] - cum[i]) / perim) * 1400));
+      for (let k = 0; k < n; k++) planS.push([lerp(a[0], b[0], k / n), lerp(a[1], b[1], k / n)]);
+    }
+    planS.push(plan[0]);
+    const ctrl = [[portrait ? rnd() - 0.5 : -1.6, portrait ? -1.6 : rnd() - 0.5]];
+    for (let i = 0; i < 24; i++) ctrl.push([(rnd() - 0.5) * (portrait ? 1.8 : 2.9), (rnd() - 0.5) * (portrait ? 2.9 : 1.8)]);
+    freeS = resample(catmull(ctrl, 30), planS.length);
+    plan.forEach(p => (p.h = 0));
+  }
+
+  /* ── camera: plan lies on the ground (x, z); y is up ── */
+  let W, H, S, portrait;
+  const TOP = { yaw: 0, pitch: Math.PI / 2 }, AXO = { yaw: -0.52, pitch: 0.6 };
+  const WALL = 0.24;
+  function project(x, z, y, cam) {
+    const ca = Math.cos(cam.yaw), sa = Math.sin(cam.yaw);
+    const x1 = x * ca - z * sa, z1 = x * sa + z * ca;
+    return [W / 2 + x1 * S, H * 0.47 + (z1 * Math.sin(cam.pitch) - (y - WALL / 2) * Math.cos(cam.pitch)) * S];
+  }
+  function layout() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = root.clientWidth; H = root.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    cv.style.width = W + "px"; cv.style.height = H + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const p = W / H < 0.9;
+    if (p !== portrait || !plan) { portrait = p; build(portrait); }
+    // scale so that both the top view and the finished axonometric fit
+    S = 1;
+    const size = cam => {
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      plan.forEach(([x, z]) => [0, WALL * 2.4].forEach(y => {
+        const [a, b] = project(x, z, y, cam);
+        x0 = Math.min(x0, a); x1 = Math.max(x1, a); y0 = Math.min(y0, b); y1 = Math.max(y1, b);
+      }));
+      return [x1 - x0, y1 - y0];
+    };
+    const [tw, th] = size(TOP), [aw, ah] = size(AXO);
+    S = Math.min((W * (portrait ? 0.84 : 0.6)) / Math.max(tw, aw), (H * 0.66) / Math.max(th, ah));
   }
 
   /* ── state ── */
-  let t0 = performance.now(), t = 0, running = true, visible = true;
-  let mouse = null, yaw = 0, yawTarget = 0;
+  let t0 = performance.now(), t = 0, visible = true, mouse = null, yawOff = 0, yawTarget = 0;
 
   function frame(now) {
-    if (!running) return;
     requestAnimationFrame(frame);
     if (!visible) return;
-    t = still ? END + 1 : (now - t0) / 1000;
+    t = still ? END + 4 : (now - t0) / 1000;
     draw();
   }
+
+  const ring = pts => { ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); };
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
     const idle = Math.max(0, t - END);
-
-    // 1 — tangles
-    ctx.lineWidth = 1; ctx.strokeStyle = INK; ctx.lineCap = "round"; ctx.lineJoin = "round";
-    tangles.forEach((c, i) => {
-      const p = prog(t, T_TANGLE + c.delay, 2.6);
-      if (p <= 0) return;
-      const drift = still ? 0 : 0.012 * Math.min(1, idle / 3);
-      const pts = c.pts.map(([u, v], j) => L.map(
-        u + Math.sin(t * 0.35 + c.phase + j) * drift,
-        v + Math.cos(t * 0.3 + c.phase * 1.7 + j) * drift
-      ));
-      const nd = L.nodes[i];
-      pts.push([nd[0] + L.back[0] * 56, nd[1] + L.back[1] * 56], nd); // arrive straight
-      let path = catmull(pts, 22);
-      if (mouse) path = path.map(([x, y]) => {
-        const dx = x - mouse[0], dy = y - mouse[1], d = Math.hypot(dx, dy), R = 90;
-        if (d > R || d === 0) return [x, y];
-        const f = Math.pow(1 - d / R, 2) * 26;
-        return [x + (dx / d) * f, y + (dy / d) * f];
-      });
-      const n = Math.max(2, Math.floor(path.length * p));
-      ctx.beginPath();
-      ctx.moveTo(path[0][0], path[0][1]);
-      for (let k = 1; k < n; k++) ctx.lineTo(path[k][0], path[k][1]);
-      ctx.stroke();
-    });
-
-    // 2 — nodes and rays converging on one point
-    const pr = prog(t, T_RAYS, 1.2);
-    if (pr > 0) {
-      ctx.fillStyle = INK;
-      L.nodes.forEach(([x, y], i) => {
-        const pi = prog(t, T_RAYS + i * 0.03, 1.1);
-        ctx.beginPath(); ctx.arc(x, y, 1.6, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(x, y);
-        ctx.lineTo(x + (L.F[0] - x) * pi, y + (L.F[1] - y) * pi); ctx.stroke();
-      });
-      if (pr >= 1) { ctx.beginPath(); ctx.arc(L.F[0], L.F[1], 2.4, 0, Math.PI * 2); ctx.fill(); }
-    }
-
-    // 3 — a dashed axis threads the cubes in order
-    const pa = prog(t, T_AXIS, 1.2);
-    if (pa > 0) {
-      const path = [L.F, ...L.cubes.slice(0, L.axisTo || L.cubes.length)];
-      let len = 0; const segs = [];
-      for (let i = 1; i < path.length; i++) { const d = Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]); segs.push(d); len += d; }
-      let left = len * pa;
-      ctx.save(); ctx.strokeStyle = ACCENT; ctx.globalAlpha = 0.45; ctx.setLineDash([3, 4]);
-      ctx.beginPath(); ctx.moveTo(path[0][0], path[0][1]);
-      for (let i = 1; i < path.length && left > 0; i++) {
-        const f = Math.min(1, left / segs[i - 1]);
-        ctx.lineTo(path[i - 1][0] + (path[i][0] - path[i - 1][0]) * f, path[i - 1][1] + (path[i][1] - path[i - 1][1]) * f);
-        left -= segs[i - 1];
-      }
-      ctx.stroke(); ctx.restore();
-    }
-
-    // 4 — Hilbert cubes, order 1 → 5, then the solid
-    yaw += (yawTarget - yaw) * 0.06;
-    const a = Math.PI / 4 + yaw + (still ? 0 : Math.sin(t * 0.22) * 0.1 * Math.min(1, idle / 2));
-    const b = Math.atan(1 / Math.SQRT2), ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);
-    const proj = (x, y, z, cx, cy, s) => {
-      const x1 = x * ca - z * sa, z1 = x * sa + z * ca;
-      return [cx + x1 * s, cy - (y * cb - z1 * sb) * s];
+    const pTilt = prog(t, T_SPACE, 2.2), pRise = prog(t, T_SPACE + 0.8, 2.0);
+    yawOff += (yawTarget - yawOff) * 0.05;
+    const cam = {
+      yaw: lerp(TOP.yaw, AXO.yaw, pTilt) + (yawOff + (still ? 0 : Math.sin(idle * 0.18) * 0.06)) * pTilt,
+      pitch: lerp(TOP.pitch, AXO.pitch, pTilt)
     };
-    L.cubes.forEach(([cx, cy], i) => {
-      const p = prog(t, T_CUBES + i * CUBE_GAP, CUBE_DUR);
-      if (p <= 0) return;
-      const s = L.s;
-      if (i < curves.length) {
-        const pts = curves[i], count = pts.length / 3, n = Math.max(2, Math.floor(count * p));
-        ctx.lineWidth = [1, 1, 0.9, 0.75, 0.6][i];
-        ctx.beginPath();
-        for (let k = 0; k < n; k++) {
-          const [x, y] = proj(pts[k * 3], pts[k * 3 + 1], pts[k * 3 + 2], cx, cy, s);
-          k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    const phase = t < T_PLAN ? 0 : t < T_SPACE ? 1 : 2;
+    steps.forEach((el, i) => el.classList.toggle("on", i === phase));
+
+    ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = INK; ctx.lineWidth = 1;
+
+    if (pTilt <= 0) {
+      // 01 + 02: one line is drawn, then snaps point by point into the plan
+      const n = planS.length, drawn = Math.max(2, Math.floor(n * prog(t, 0.2, 3.0)));
+      const pts = [];
+      for (let i = 0; i < drawn; i++) {
+        const k = prog(t, T_PLAN + (i / n) * 1.8, 1.1);
+        let x = lerp(freeS[i][0], planS[i][0], k), z = lerp(freeS[i][1], planS[i][1], k);
+        if (!still) { x += Math.sin(t * 0.9 + i * 0.013) * 0.012 * (1 - k); z += Math.cos(t * 0.8 + i * 0.011) * 0.012 * (1 - k); }
+        let [sx, sy] = project(x, z, 0, cam);
+        if (mouse && k < 1) {
+          const dx = sx - mouse[0], dy = sy - mouse[1], d = Math.hypot(dx, dy), R = 80;
+          if (d < R && d > 0) { const f = Math.pow(1 - d / R, 2) * 22 * (1 - k); sx += (dx / d) * f; sy += (dy / d) * f; }
         }
-        ctx.stroke();
-      } else {
-        // the filled volume: convex hull of the projected cube
-        const P = CORNERS.map(([x, y, z]) => proj(x * 0.97, y * 0.97, z * 0.97, cx, cy, s));
-        const hull = hullOf(P);
-        ctx.save(); ctx.globalAlpha = p; ctx.fillStyle = INK;
-        ctx.beginPath(); hull.forEach(([x, y], k) => (k ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); ctx.fill();
-        ctx.restore();
+        pts.push([sx, sy]);
       }
-      ctx.save(); ctx.globalAlpha = p; ctx.fillStyle = MID;
-      ctx.font = '10px "IBM Plex Mono", ui-monospace, monospace'; ctx.textAlign = "center";
-      ctx.fillText(i < curves.length ? `n=${ORDERS[i]}` : "n→∞", cx, cy + s * 1.75 + 14);
-      ctx.restore();
+      ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.stroke();
+      if (drawn < n) { // the pen tip
+        const [x, y] = pts[pts.length - 1];
+        ctx.fillStyle = ACCENT; ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill();
+      }
+      return;
+    }
+
+    // 03: tilt into axonometric and raise the walls — walls near the cursor rise higher
+    const base = plan.map(([x, z]) => project(x, z, 0, cam));
+    plan.forEach((p, i) => {
+      let k = 1;
+      if (mouse && idle > 0) { const d = Math.hypot(base[i][0] - mouse[0], base[i][1] - mouse[1]); k += 1.4 * Math.exp(-(d * d) / (110 * 110)); }
+      p.h = still ? WALL : lerp(p.h, WALL * pRise * k, 0.15);
     });
-    ctx.lineWidth = 1;
+    const top = plan.map(([x, z], i) => project(x, z, plan[i].h, cam));
 
-    // labels sit on top of the drawing, knocked out in white
-    label(LABELS[0], L.labels[0][0], L.labels[0][1], prog(t, 1.6, 0.8));
-    label(LABELS[1], L.labels[1][0], L.labels[1][1], prog(t, T_RAYS + 0.8, 0.6));
-    const last = L.cubes[L.cubes.length - 1];
-    label(LABELS[2], last[0], L.spaceBelow ? last[1] + L.s * 1.75 + 34 : last[1] - L.s * 1.75 - 18, prog(t, END - 0.8, 0.8));
-  }
+    ctx.fillStyle = "#f5f5f3"; ring(base); ctx.fill("evenodd");
+    ctx.globalAlpha = 0.3 + 0.7 * (1 - pRise); ring(base); ctx.stroke();
+    if (pRise > 0) {
+      ctx.lineWidth = 0.6; ctx.globalAlpha = 0.5;
+      ctx.beginPath(); base.forEach(([x, y], i) => { ctx.moveTo(x, y); ctx.lineTo(top[i][0], top[i][1]); }); ctx.stroke();
+      ctx.lineWidth = 1; ctx.globalAlpha = 1; ring(top); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
 
-  function hullOf(P) {
-    // monotone chain over the 8 projected corners
-    const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-    const pts = P.slice().sort((p, q) => p[0] - q[0] || p[1] - q[1]), lo = [], hi = [];
-    for (const p of pts) { while (lo.length > 1 && cross(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
-    for (const p of pts.reverse()) { while (hi.length > 1 && cross(hi[hi.length - 2], hi[hi.length - 1], p) <= 0) hi.pop(); hi.push(p); }
-    return lo.slice(0, -1).concat(hi.slice(0, -1));
+    // someone moving through the space, along the loop
+    const pw = prog(t, END - 0.4, 0.8);
+    if (pw > 0) {
+      const speed = 0.012, trail = 18;
+      for (let k = trail; k >= 0; k--) {
+        const s = ((((idle - k * 0.08) * speed) % 1) + 1) % 1 * perim;
+        let i = 1; while (i < cum.length - 1 && cum[i] < s) i++;
+        const a = plan[i - 1], b = plan[i % plan.length], f = (s - cum[i - 1]) / (cum[i] - cum[i - 1] || 1);
+        const [x, y] = project(lerp(a[0], b[0], f), lerp(a[1], b[1], f), 0.01, cam);
+        ctx.globalAlpha = pw * (k ? 0.45 * (1 - k / trail) : 1);
+        ctx.fillStyle = ACCENT; ctx.beginPath(); ctx.arc(x, y, k ? 1.3 : 3, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
   }
 
   /* ── interaction ── */
+  const toIndex = () => document.getElementById("index-body").scrollIntoView({ behavior: still ? "auto" : "smooth" });
   root.addEventListener("pointermove", e => {
     const r = cv.getBoundingClientRect();
     mouse = [e.clientX - r.left, e.clientY - r.top];
-    yawTarget = (mouse[0] / W - 0.5) * 0.7;
+    yawTarget = (mouse[0] / W - 0.5) * 0.8;
   });
   root.addEventListener("pointerleave", () => { mouse = null; yawTarget = 0; });
-  cv.addEventListener("click", () => {
-    if (t < END) t0 = performance.now() - END * 1000; // skip to the finished drawing
-    else document.getElementById("index-body").scrollIntoView({ behavior: still ? "auto" : "smooth" });
+  cv.addEventListener("click", () => (t < END ? (t0 = performance.now() - END * 1000) : toIndex()));
+  root.querySelector("[data-replay]").addEventListener("click", () => {
+    seed = 1 + Math.floor(Math.random() * 1e6); // every replay draws a new plan
+    plan = null; layout(); t0 = performance.now();
   });
-  root.querySelector("[data-replay]").addEventListener("click", () => (t0 = performance.now()));
-  root.querySelector("[data-down]").addEventListener("click", () =>
-    document.getElementById("index-body").scrollIntoView({ behavior: still ? "auto" : "smooth" }));
+  root.querySelector("[data-down]").addEventListener("click", toIndex);
 
   new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(root);
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) visible = root.getBoundingClientRect().bottom > 0; });
   let rz;
   window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { layout(); draw(); }, 120); });
 
