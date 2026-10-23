@@ -31,7 +31,14 @@
   <!-- INDEX ─ query + field/list -->
   <main id="view-index" class="view">
     <section class="intro" id="intro" aria-label="Uncertainty, analysis, space — an animated drawing">
-      <canvas></canvas>
+      <canvas class="goo"></canvas>
+      <canvas class="fine"></canvas>
+      <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+        <filter id="goo" color-interpolation-filters="sRGB">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2.4"/>
+          <feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"/>
+        </filter>
+      </svg>
       <div class="intro-cap mono">
         <span>Juyoung Lee — Spatial research &amp; design, Seoul</span>
         <span class="intro-steps"><b data-step>01 Line</b><b data-step>02 Plan</b><b data-step>03 Space</b></span>

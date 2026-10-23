@@ -12,21 +12,25 @@ js/intro.js     opening drawing (canvas animation)
 
 Preview locally: `python3 -m http.server` → http://localhost:8000
 
-## Opening — line → plan → space
+## Opening — line → plan → space, in particles
 
-The first screen is a live canvas drawing (not a video file — sharp at any
-size, no media to load). One continuous line does three things in place:
+The first screen is a live canvas drawing (not a video file). One loop of
+particles does three things in place:
 
-1. **Line** — a free pen line wanders across the page (uncertainty).
-2. **Plan** — point by point, the same line snaps into a floor plan: a loop
-   traced around a random spanning tree of unequal bays, so it reads as
-   rooms and walls with thickness (analysis).
-3. **Space** — the camera tilts from plan to axonometric and the walls rise;
-   a red point walks the loop (space as experienced).
+1. **Line** — a dotted pen line wanders across the page; a running length
+   (mm) follows the pen tip.
+2. **Plan** — particle by particle, the line flows into a floor plan (a loop
+   around a random spanning tree of unequal bays) and dimensions appear.
+3. **Space** — the view tilts to axonometric and rows of particles rise off
+   the floor to form walls. The model then keeps twisting (higher rows turn
+   further) and springing back; drops travel along the walls; a red point
+   walks the plan.
 
-The cursor pushes the free line aside, turns the model, and raises walls
-near it. Click to skip, click again (or `Index ↓`) to reach the index.
-`Replay` generates a new plan each time. Respects `prefers-reduced-motion`.
+Particles are drawn on a canvas with an SVG "goo" filter (blur + alpha
+threshold), so dots that crowd together merge like liquid and part again.
+The cursor scatters the free line, takes over the twist, and raises walls
+near it. Click to skip, click again (or `Index ↓`) for the index; `Replay`
+generates a new plan. Respects `prefers-reduced-motion`.
 
 ## Concept — "Field"
 

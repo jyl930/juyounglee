@@ -52,6 +52,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   cursor: crosshair;
 }
 .intro canvas { position: absolute; inset: 0; display: block; }
+.intro canvas.goo { filter: url(#goo); }
 .intro-cap {
   position: absolute; left: var(--gut); right: var(--gut); bottom: 18px;
   display: flex; justify-content: space-between; gap: 16px; color: var(--mid);
