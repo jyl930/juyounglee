@@ -19,7 +19,9 @@
     </a>
     <nav class="nav">
       <a href="#/" data-link data-nav="index">Index</a>
-      <a href="#/research" data-link data-nav="research">Research</a>
+      <a href="#/material" data-link data-nav="material">Material</a>
+      <a href="#/talks" data-link data-nav="talks">Talks</a>
+      <a href="#/publications" data-link data-nav="publications">Publications</a>
       <a href="#/about" data-link data-nav="about">About</a>
     </nav>
     <div class="meta mono">
@@ -30,7 +32,7 @@
 
   <!-- INDEX ─ query + field/list -->
   <main id="view-index" class="view">
-    <section class="intro" id="intro" aria-label="Uncertainty, analysis, space — an animated drawing">
+    <section class="intro" id="intro" aria-label="Research sequence: material and ideation, presentations and awards, publications">
       <canvas class="goo"></canvas>
       <canvas class="fine"></canvas>
       <svg width="0" height="0" aria-hidden="true" style="position:absolute">
@@ -39,10 +41,12 @@
           <feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"/>
         </filter>
       </svg>
+      <nav class="stage-links mono" id="stage-links" aria-label="Research stages"></nav>
+      <div class="intro-tip mono" id="intro-tip"></div>
       <div class="intro-cap mono">
         <span>Juyoung Lee — Spatial research &amp; design, Seoul</span>
-        <span class="intro-steps"><b data-step>01 Line</b><b data-step>02 Plan</b><b data-step>03 Space</b></span>
-        <span class="intro-act"><button data-replay>Replay</button><button data-down>Index ↓</button></span>
+        <span class="intro-hint">Hover a stage · click to enter</span>
+        <span class="intro-act"><button data-replay>Replay</button><button data-down>All works ↓</button></span>
       </div>
     </section>
 
@@ -86,10 +90,36 @@
     </div>
   </main>
 
-  <!-- RESEARCH -->
-  <main id="view-research" class="view" hidden>
+  <!-- 01 MATERIAL & IDEATION -->
+  <main id="view-material" class="view" hidden>
     <div class="page">
-      <aside class="page-side mono">Research</aside>
+      <aside class="page-side mono"><div class="stage-strip" data-strip="material"></div></aside>
+      <div class="page-body">
+        <p class="lead">재료를 다시 읽는 실험에서 질문이 시작됩니다. 손으로 만지는 물성과, 화면 속에서만 존재하는 성질 사이를 오가며 연구의 출발점을 찾습니다.</p>
+        <h3 class="mono label">Experiments</h3>
+        <div class="cards" id="material-cards"></div>
+        <h3 class="mono label">Ideation</h3>
+        <div id="ideas"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 02 PRESENTATIONS & AWARDS -->
+  <main id="view-talks" class="view" hidden>
+    <div class="page">
+      <aside class="page-side mono"><div class="stage-strip" data-strip="talks"></div></aside>
+      <div class="page-body">
+        <p class="lead">질문을 좁혀 학회에서 발표하고, 검증받은 기록입니다.</p>
+        <div class="tools mono talk-filters" id="talk-filters"></div>
+        <div id="talks"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 03 PUBLICATIONS -->
+  <main id="view-publications" class="view" hidden>
+    <div class="page">
+      <aside class="page-side mono"><div class="stage-strip" data-strip="publications"></div></aside>
       <div class="page-body">
         <p class="lead" id="research-lead"></p>
         <h3 class="mono label">Interests</h3>

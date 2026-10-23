@@ -196,7 +196,28 @@
   });
   document.addEventListener("pointermove", e => { hov.style.left = e.clientX + 24 + "px"; hov.style.top = e.clientY - 85 + "px"; });
 
-  /* ── research / about ───────────────────────────────── */
+  /* ── stage pages: 01 material & ideation · 02 talks · 03 publications ── */
+  const STAGES = S.stages, TALKS = window.TALKS || [], IDEAS = window.IDEAS || [];
+  $$("[data-strip]").forEach(el => {
+    el.innerHTML = STAGES.map(st => `<a href="${st.route}" class="${st.key === el.dataset.strip ? "on" : ""}"><span>${st.no}</span>${esc(st.label)}<small>${esc(st.ko)}</small></a>`).join("");
+  });
+  $("#material-cards").innerHTML = items.filter(p => p.type === "material").map(p =>
+    `<a class="card" href="#/p/${p.id}">${drawing(p.id, p.no)}<b>${esc(p.title)}</b><small>${esc(p.titleKo)} · ${Math.floor(p.year)}</small></a>`).join("");
+  $("#ideas").innerHTML = IDEAS.map(d =>
+    `<div class="cv-row"><span class="mono">${d.year}</span><span><b>${esc(d.title)}</b><small>${esc(d.titleKo)} — ${esc(d.note)}</small></span></div>`).join("");
+  const kinds = ["All", ...new Set(TALKS.map(x => x.kind))];
+  $("#talk-filters").innerHTML = `<div class="filters">${kinds.map((k, i) => `<button data-kind="${k}" class="${i ? "" : "on"}">${k}</button>`).join("")}</div>`;
+  const renderTalks = kind => {
+    $("#talks").innerHTML = TALKS.filter(x => kind === "All" || x.kind === kind).sort((a, b) => b.year - a.year).map(x =>
+      `<div class="cv-row talk"><span class="mono">${Math.floor(x.year)}</span><span><b>${esc(x.title)}</b><small>${esc(x.venue)}</small></span><span class="mono kind">${esc(x.kind)}</span></div>`).join("");
+  };
+  $$("#talk-filters button").forEach(b => b.addEventListener("click", () => {
+    $$("#talk-filters button").forEach(x => x.classList.toggle("on", x === b));
+    renderTalks(b.dataset.kind);
+  }));
+  renderTalks("All");
+
+  /* ── publications / about ──────────────────────────── */
   $("#research-lead").textContent = "공간을 경험하는 사람의 감각과 행동을, 재료·실내·공공·가상의 서로 다른 척도에서 관찰하고 설계합니다.";
   $("#interests").innerHTML = S.interests.map(i => `<li>${esc(i)}</li>`).join("");
   $("#pubs").innerHTML = items.filter(p => p.type === "paper").map(p =>
@@ -257,7 +278,8 @@
       if (p) return openSheet(p);
     }
     closeSheet();
-    const view = h === "#/research" ? "research" : h === "#/about" ? "about" : "index";
+    const views = { "#/material": "material", "#/talks": "talks", "#/publications": "publications", "#/research": "publications", "#/about": "about" };
+    const view = views[h] || "index";
     const changed = lastView !== h || document.body.dataset.view !== view;
     lastView = h;
     document.body.dataset.view = view;

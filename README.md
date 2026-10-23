@@ -5,32 +5,29 @@ Juyoung Lee (이주영) — research & design portfolio. Static site, no build s
 ```
 index.html      structure
 css/style.css   design (white, minimal, mono labels + one accent)
-js/data.js      ← all content: projects, papers, bio, CV
+js/data.js      ← all content: projects, papers, talks, ideas, bio, CV
 js/main.js      field / list / sheet / routing
 js/intro.js     opening drawing (canvas animation)
 ```
 
 Preview locally: `python3 -m http.server` → http://localhost:8000
 
-## Opening — line → plan → space, in particles
+## Opening — the research sequence (three stages, three doors)
 
-The first screen is a live canvas drawing (not a video file). One loop of
-particles does three things in place:
+The first screen is a live canvas drawing that shows the research path in
+three stages, left → right (top → bottom on phones). Each stage is also the
+way into its page:
 
-1. **Line** — a dotted pen line wanders across the page; a running length
-   (mm) follows the pen tip.
-2. **Plan** — particle by particle, the line flows into a floor plan (a loop
-   around a random spanning tree of unequal bays) and dimensions appear.
-3. **Space** — the view tilts to axonometric and rows of particles rise off
-   the floor to form walls. The model then keeps twisting (higher rows turn
-   further) and springing back; drops travel along the walls; a red point
-   walks the plan.
+| Stage | Drawing | Hover | Click |
+|---|---|---|---|
+| **01 Material & Ideation** | soft particles (non-digital): material samples that pool, scatter into grains or pull into fibres; ringed dots are loose ideas | particles stir around the cursor; a sample/idea shows its title | `#/material` (or the work itself) |
+| **02 Presentations & Awards** | crossing into the digital, particles snap to a grid and travel a narrowing network; its nodes are the talks (■ award · □ presentation · ◇ conference) | node shows title, venue, year | `#/talks` |
+| **03 Publications** | pixels land on stacked floor plates — one per paper — that form a space | plate lifts and shows the paper | the paper |
 
-Particles are drawn on a canvas with an SVG "goo" filter (blur + alpha
-threshold), so dots that crowd together merge like liquid and part again.
-The cursor scatters the free line, takes over the twist, and raises walls
-near it. Click to skip, click again (or `Index ↓`) for the index; `Replay`
-generates a new plan. Respects `prefers-reduced-motion`.
+Soft particles use an SVG "goo" filter (blur + alpha threshold) so they
+merge like liquid; everything digital is drawn crisp. Stage counts and nodes
+come from `js/data.js` (`PROJECTS` material/paper, `IDEAS`, `TALKS`). Respects
+`prefers-reduced-motion`.
 
 ## Concept — "Field"
 

@@ -23,6 +23,13 @@ window.SITE = {
     { label: "Instagram", href: "#" }       // TODO
   ],
 
+  // 첫 화면 시퀀스의 세 단계 — 각 단계를 누르면 해당 페이지로 이동
+  stages: [
+    { key: "material",     route: "#/material",     no: "01", label: "Material & Ideation",    ko: "재료 탐구 · 아이디에이션" },
+    { key: "talks",        route: "#/talks",        no: "02", label: "Presentations & Awards", ko: "학술발표 · 수상 · 학회" },
+    { key: "publications", route: "#/publications", no: "03", label: "Publications",           ko: "연구 논문" }
+  ],
+
   // 메인 화면 질의창에 자동으로 타이핑되는 문장들
   queries: [
     "material re-exploration",
@@ -153,4 +160,29 @@ window.PROJECTS = [
     material: "",
     summary: "연구 요약을 입력하세요. (초안)"
   }
+];
+
+/*
+ * 아이디에이션 — 연구를 시작하기 전의 질문, 스케치, 재료 테스트 메모.
+ * TODO: 초안(가제)입니다. 실제 내용으로 교체하세요.
+ */
+window.IDEAS = [
+  { year: 2025, title: "Digital residue in physical rooms", titleKo: "물리적 공간에 남는 디지털의 흔적", note: "질문 메모 (초안)" },
+  { year: 2024, title: "Material that remembers touch",     titleKo: "접촉을 기억하는 재료",           note: "재료 테스트 (초안)" },
+  { year: 2024, title: "Screens as walls, walls as screens", titleKo: "벽이 되는 화면, 화면이 되는 벽", note: "스케치 (초안)" }
+];
+
+/*
+ * 학술발표 · 수상 · 학회 참여.
+ * kind : Presentation | Award | Conference
+ * TODO: 초안(가제)입니다. 실제 발표명·학회명·연도로 교체하세요.
+ */
+window.TALKS = [
+  { year: 2025.8, kind: "Award",        title: "Best Paper Award (TBD)",        venue: "Conference (TBD)" },
+  { year: 2025.5, kind: "Presentation", title: "Presentation title (TBD) A",    venue: "International Conference (TBD)" },
+  { year: 2024.11, kind: "Presentation", title: "Presentation title (TBD) B",   venue: "Domestic Conference (TBD)" },
+  { year: 2024.6, kind: "Conference",   title: "Conference participation (TBD)", venue: "Academic Society (TBD)" },
+  { year: 2024.3, kind: "Award",        title: "Award (TBD)",                   venue: "Competition (TBD)" },
+  { year: 2023.10, kind: "Presentation", title: "Presentation title (TBD) C",   venue: "Conference (TBD)" },
+  { year: 2023.4, kind: "Conference",   title: "Conference participation (TBD)", venue: "Academic Society (TBD)" }
 ];
