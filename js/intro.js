@@ -5,8 +5,9 @@
  *                            that pool, scatter into grains, or pull into
  *                            fibres; loose ideas drift between them.
  *   02 Presentations/Awards  crossing into the digital, particles become
- *                            pixels and glide along smooth curves through a
- *                            narrowing network whose nodes are the talks.
+ *                            pixels and travel a narrowing network whose
+ *                            nodes are the talks — organic, neuron-like fibres
+ *                            by default, or tidy S-curves (?net=curves).
  *   03 Publications          pixels drift into a field of depth — soft, edgeless
  *                            clouds of points, one per paper, seen in
  *                            perspective — a sense of space rather than a model.
@@ -83,33 +84,89 @@
     return map(0.05 + 0.27 * (0.5 + 0.5 * Math.sin(s * d.sp + d.ph)), -0.38 + 0.76 * (0.5 + 0.5 * Math.sin(s * d.sp * 1.7 + d.ph * 2.3)));
   }
 
-  /* ── 02: the narrowing network of curves; its nodes are the talks ── */
-  let nodes = [], edges = [], routes = [];
+  /* ── 02: the network; its nodes are the talks.
+        "neuron" (default): nodes scattered in a narrowing envelope, joined by
+                  organic, slightly swaying fibres that thicken into cell bodies;
+                  entry fibres reach back into the material clusters.
+        "curves": the same graph in tidy columns of smooth S-curves.
+        Both are one graph: entry fibres → nodes → exit fibres, all curves. ── */
+  let NET = new URLSearchParams(location.search).get("net") === "curves" ? "curves" : "neuron";
+  let nodes = [], edges = [], entries = [], final = null;
+  function addEdge(p, q, kind, from, to, o = {}) {
+    const e = { p, q, kind, from, to, k1: 0.5, k2: 0.5, b1: 0, b2: 0, amp: 0, ph: rnd() * 7, pts: [], len: 1, ...o };
+    edges.push(e);
+    if (from) from.out.push(e);
+    if (kind === "entry") entries.push(e);
+    return e;
+  }
   function buildNetwork() {
     const T = Math.max(3, TALKS.length);
-    const nB = Math.max(1, Math.round((T - 1) / 3)), nA = T - 1 - nB;
-    const col = (n, u, spread) => Array.from({ length: n }, (_, i) => ({ u, v: n === 1 ? 0 : -spread + (2 * spread * i) / (n - 1) }));
-    const A = col(nA, 0.43, 0.3), B = col(nB, 0.52, 0.15), C = col(1, 0.6, 0);
-    nodes = [...A, ...B, ...C].map((n, i) => ({ ...n, item: TALKS[i] || null, col: i < nA ? 0 : i < nA + nB ? 1 : 2 }));
-    // smooth S-curve between two nodes: leaves and arrives horizontally, so streams merge without corners
-    const elbow = (p, q) => {
-      const mu = (p.u + q.u) / 2, out = [];
-      for (let i = 0; i <= 20; i++) {
-        const s = i / 20, a = (1 - s) ** 3, b = 3 * (1 - s) ** 2 * s, c = 3 * (1 - s) * s * s, d = s ** 3;
-        out.push([a * p.u + b * mu + c * mu + d * q.u, a * p.v + b * p.v + c * q.v + d * q.v]);
-      }
-      return out;
-    };
-    edges = [];
-    A.forEach((a, i) => edges.push(elbow(a, B[nB === 1 ? 0 : Math.round((i * (nB - 1)) / Math.max(1, nA - 1))])));
-    B.forEach(b => edges.push(elbow(b, C[0])));
-    A.forEach(a => edges.push([[0.37, a.v], [a.u, a.v]]));
-    edges.push([[C[0].u, 0], [0.675, 0]]);
-    // one route per A node: A → B → C → exit, in flow coords
-    routes = A.map((a, i) => {
-      const b = B[nB === 1 ? 0 : Math.round((i * (nB - 1)) / Math.max(1, nA - 1))];
-      return [...elbow(a, b), ...elbow(b, C[0]).slice(1), [0.675, 0]];
+    nodes = []; edges = []; entries = [];
+    const node = (u, v, i) => ({ u, v, item: TALKS[i] || null, out: [], ph: rnd() * 7 });
+    if (NET === "curves") {
+      const nB = Math.max(1, Math.round((T - 1) / 3)), nA = T - 1 - nB;
+      const col = (n, u, spread, off) => Array.from({ length: n }, (_, i) => node(u, n === 1 ? 0 : -spread + (2 * spread * i) / (n - 1), off + i));
+      const A = col(nA, 0.43, 0.3, 0), B = col(nB, 0.52, 0.15, nA), C = col(1, 0.6, 0, nA + nB);
+      nodes = [...A, ...B, ...C];
+      const toB = i => B[nB === 1 ? 0 : Math.round((i * (nB - 1)) / Math.max(1, nA - 1))];
+      A.forEach((a, i) => { addEdge([a.u, a.v], [toB(i).u, toB(i).v], "link", a, toB(i)); addEdge([0.3, a.v * 0.55], [a.u, a.v], "entry", null, a); });
+      B.forEach(b => addEdge([b.u, b.v], [C[0].u, C[0].v], "link", b, C[0]));
+      final = C[0];
+      addEdge([final.u, final.v], [0.675, 0], "exit", final, null);
+      return;
+    }
+    // neuron: older talks upstream and spread wide, newer ones downstream and close together
+    for (let i = 0; i < T; i++) {
+      const r = i / (T - 1), env = 0.3 * (1 - r) + 0.03;
+      let n, tries = 0;
+      do { n = node(0.41 + r * 0.21 + (rnd() - 0.5) * 0.04, i === T - 1 ? 0 : (2 * ((i * 0.618 + rnd() * 0.25) % 1) - 1) * env, i); }
+      while (tries++ < 30 && nodes.some(m => Math.hypot((m.u - n.u) * 2.4, m.v - n.v) < 0.11));
+      nodes.push(n);
+    }
+    final = nodes[T - 1];
+    const organic = () => ({ k1: 0.3 + rnd() * 0.3, k2: 0.3 + rnd() * 0.3, b1: (rnd() - 0.5) * 0.07, b2: (rnd() - 0.5) * 0.07, amp: 2 + rnd() * 3 });
+    const dist = (a, b) => Math.hypot((a.u - b.u) * 2.4, a.v - b.v);
+    nodes.forEach((a, i) => {
+      if (a === final) return;
+      const down = nodes.slice(i + 1).sort((x, y) => dist(a, x) - dist(a, y));
+      down.slice(0, down.length > 2 && rnd() < 0.3 ? 3 : 2).forEach(b => addEdge([a.u, a.v], [b.u, b.v], "link", a, b, organic()));
     });
+    // a few side branches between neighbours: they carry nothing, they make it a tissue
+    nodes.forEach((a, i) => {
+      const b = nodes[i + 1 + Math.floor(rnd() * 2)];
+      if (b && rnd() < 0.5 && !a.out.some(e => e.to === b)) addEdge([a.u, a.v], [b.u, b.v], "syn", null, null, { ...organic(), amp: 4 + rnd() * 4 });
+    });
+    // dendrites reaching back into the material clusters
+    nodes.slice(0, 4).forEach(a => {
+      for (let j = 0; j < 2; j++) {
+        const c = clusters[Math.floor(rnd() * clusters.length)];
+        addEdge([c.u + 0.04 + rnd() * 0.06, c.v + (rnd() - 0.5) * 0.12], [a.u, a.v], "entry", null, a, { ...organic(), amp: 3 + rnd() * 3 });
+      }
+    });
+    for (let j = 0; j < 2; j++) addEdge([final.u, final.v], [0.69, (rnd() - 0.5) * 0.08], "exit", final, null, organic());
+  }
+  // an edge as a screen polyline: a cubic curve that may bend, plus a slow sway
+  function curvePts(e, t) {
+    const [pu, pv] = e.p, [qu, qv] = e.q, du = qu - pu;
+    const P = map(pu, pv), C1 = map(pu + du * e.k1, pv + e.b1), C2 = map(qu - du * e.k2, qv + e.b2), Q = map(qu, qv);
+    const out = [], n = 28, nx = -(Q[1] - P[1]), ny = Q[0] - P[0], nl = Math.hypot(nx, ny) || 1;
+    for (let i = 0; i <= n; i++) {
+      const s = i / n, a = (1 - s) ** 3, b = 3 * (1 - s) ** 2 * s, c = 3 * (1 - s) * s * s, d = s ** 3;
+      const w = still ? 0 : e.amp * sc * Math.sin(Math.PI * s) * Math.sin(t * 0.7 + e.ph + s * 3);
+      out.push([a * P[0] + b * C1[0] + c * C2[0] + d * Q[0] + (nx / nl) * w, a * P[1] + b * C1[1] + c * C2[1] + d * Q[1] + (ny / nl) * w]);
+    }
+    return out;
+  }
+  function pickRoute() {
+    const route = [entries[Math.floor(rnd() * entries.length)]];
+    let n = route[0].to;
+    for (let guard = 0; n && guard < 20; guard++) {
+      const outs = n.out.filter(e => e.kind !== "syn");
+      if (!outs.length) break;
+      const e = outs[Math.floor(rnd() * outs.length)];
+      route.push(e); n = e.to;
+    }
+    return route;
   }
 
   /* ── 03: a field of depth — one soft cloud of points per paper.
@@ -152,11 +209,10 @@
   let flow = [], nextSpawn = 0;
   function spawn(t) {
     const c = clusters[Math.floor(rnd() * clusters.length)], p = c.parts[Math.floor(rnd() * c.parts.length)];
-    const r = Math.floor(rnd() * routes.length), route = routes[r].map(([u, v]) => map(u, v));
-    const start = particlePos(c, p, t), a = route[0];
-    const mid = [(start[0] + a[0]) / 2 + (rnd() - 0.5) * 120 * sc, (start[1] + a[1]) / 2 + (rnd() - 0.5) * 120 * sc];
+    const route = pickRoute(), start = particlePos(c, p, t), a = route[0].pts[0] || map(...route[0].p);
+    const mid = [(start[0] + a[0]) / 2 + (rnd() - 0.5) * 90 * sc, (start[1] + a[1]) / 2 + (rnd() - 0.5) * 90 * sc];
     const layer = Math.floor(rnd() * layers.length), pt = Math.floor(rnd() * LN);
-    flow.push({ born: t, start, mid, route, layer, pt, dur: 1.5 + rnd() * 0.8, len: pathLen(route) });
+    flow.push({ born: t, start, mid, route, layer, pt, dur: 1.1 + rnd() * 0.7, trail: [] });
   }
   function pathLen(pts) { let s = 0; for (let i = 1; i < pts.length; i++) s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return s; }
   function alongPath(pts, d) {
@@ -212,19 +268,17 @@
     const hz = hoverZone, on = i => hz < 0 || hz === i;
     [...linksEl.children].forEach((a, i) => a.classList.toggle("on", hz === i));
 
-    // zone boundaries: non-digital | digital | space
-    f.save(); f.strokeStyle = LINE; f.setLineDash([2, 5]); f.lineWidth = 1;
+    // no dividing lines — only two faint words where one state turns into the next
     f.font = '9px "IBM Plex Mono", ui-monospace, monospace'; f.fillStyle = DIM; f.textAlign = "center";
-    [[ZONES[1][0], "NON-DIGITAL  |  DIGITAL"], [ZONES[2][0], "DIGITAL  |  SPACE"]].forEach(([u, label], i) => {
-      const k = prog(t, [T2, T3][i] - 0.4, 0.8);
+    [[ZONES[1][0], "NON-DIGITAL → DIGITAL"], [ZONES[2][0], "DIGITAL → SPACE"]].forEach(([u, label], i) => {
+      const k = prog(t, [T2, T3][i] - 0.2, 0.8);
       if (k <= 0) return;
       f.globalAlpha = k;
-      const [x0, y0] = map(u, -0.46), [x1, y1] = map(u, 0.46);
-      f.beginPath(); f.moveTo(x0, y0); f.lineTo(lerp(x0, x1, k), lerp(y0, y1, k)); f.stroke();
+      const [x1, y1] = map(u, 0.46);
       if (portrait) { f.textAlign = "right"; f.fillText(label, W - 16, y1 - 6); f.textAlign = "center"; }
       else f.fillText(label, x1, y1 + 16);
     });
-    f.restore(); f.globalAlpha = 1;
+    f.globalAlpha = 1;
 
     /* 01 — material */
     const k1 = prog(t, T1, 1.6);
@@ -256,31 +310,62 @@
     f.globalAlpha = 1;
 
     /* 02 — network */
-    const k2 = prog(t, T2, 1.4);
+    const k2 = prog(t, T2, 1.6), neuron = NET === "neuron";
+    edges.forEach(e => { e.pts = curvePts(e, t); e.len = pathLen(e.pts); });
     if (k2 > 0) {
-      f.lineWidth = 1; f.strokeStyle = on(1) ? "#b8b8b8" : "#e2e2e2";
       edges.forEach(e => {
-        const pts = e.map(([u, v]) => map(u, v)), L = pathLen(pts) * k2;
+        const reveal = clamp(k2 * 1.25 - (e.kind === "exit" ? 0.25 : e.kind === "syn" ? 0.2 : 0)), pts = e.pts;
+        if (reveal <= 0) return;
+        f.lineWidth = neuron ? 0.8 : 1;
+        f.strokeStyle = e.kind === "syn" ? (on(1) ? "#d6d6d6" : "#ececec") : on(1) ? "#b0b0b0" : "#e2e2e2";
+        let left = e.len * reveal;
         f.beginPath(); f.moveTo(pts[0][0], pts[0][1]);
-        let left = L;
         for (let i = 1; i < pts.length && left > 0; i++) {
           const l = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]), q = Math.min(1, left / l);
           f.lineTo(lerp(pts[i - 1][0], pts[i][0], q), lerp(pts[i - 1][1], pts[i][1], q)); left -= l;
         }
         f.stroke();
+        // neuron: fibres thicken where they meet a cell body (goo turns the taper into flesh)
+        if (neuron && e.kind !== "syn" && reveal >= 1) {
+          g.fillStyle = on(1) ? INK : DIM; g.beginPath();
+          const n = pts.length - 1, m = 7;
+          for (let j = 0; j < m; j++) {
+            const r = lerp(2.8, 0.6, j / m);
+            if (e.from) dot(g, pts[j][0], pts[j][1], r);
+            if (e.to) dot(g, pts[n - j][0], pts[n - j][1], r);
+          }
+          g.fill();
+        }
       });
       nodes.forEach((n, i) => {
-        const kn = prog(t, T2 + 0.3 + n.col * 0.35 + i * 0.03, 0.5);
+        const kn = prog(t, T2 + 0.3 + (n.u - 0.4) * 4 + i * 0.02, 0.6);
         if (kn <= 0) return;
-        const [x, y] = map(n.u, n.v), hot = hit && hit.node === n, s = (hot ? 9 : 6) * kn;
+        const [x, y] = map(n.u, n.v), hot = hit && hit.node === n;
         const kind = n.item ? n.item.kind : "Presentation";
-        f.strokeStyle = hot ? ACCENT : on(1) ? INK : DIM; f.fillStyle = f.strokeStyle; f.lineWidth = 1;
-        f.beginPath();
-        if (kind === "Conference") { f.moveTo(x, y - s * 0.7); f.lineTo(x + s * 0.7, y); f.lineTo(x, y + s * 0.7); f.lineTo(x - s * 0.7, y); f.closePath(); }
-        else f.rect(x - s / 2, y - s / 2, s, s);
-        f.fillStyle = "#fff"; f.fill(); f.stroke();
-        if (kind === "Award") { f.fillStyle = f.strokeStyle; f.fillRect(x - s / 2, y - s / 2, s, s); }
-        if (n.item && on(1) && hz === 1) { f.font = '9px "IBM Plex Mono", ui-monospace, monospace'; f.fillStyle = MID; f.textAlign = "left"; f.fillText(String(Math.floor(n.item.year)), x + 8, y - 8); }
+        if (neuron) {
+          // cell body: a soft blob with a few lobes that breathe
+          const r = (kind === "Award" ? 8 : 6.5) * kn + (hot ? 1.5 : 0);
+          g.fillStyle = hot ? ACCENT : on(1) ? INK : DIM; g.beginPath(); dot(g, x, y, r);
+          for (let j = 0; j < 3; j++) {
+            const a = n.ph + j * 2.1 + (still ? 0 : Math.sin(t * 0.8 + n.ph + j) * 0.4);
+            dot(g, x + Math.cos(a) * r * 0.55, y + Math.sin(a) * r * 0.55, r * 0.55);
+          }
+          g.fill();
+          // kind, as a small white mark inside: □ presentation · ◇ conference · solid = award
+          f.fillStyle = "#fff"; f.beginPath();
+          if (kind === "Presentation") f.rect(x - 1.6, y - 1.6, 3.2, 3.2);
+          if (kind === "Conference") { f.moveTo(x, y - 2.4); f.lineTo(x + 2.4, y); f.lineTo(x, y + 2.4); f.lineTo(x - 2.4, y); f.closePath(); }
+          f.fill();
+        } else {
+          const s = (hot ? 9 : 6) * kn;
+          f.strokeStyle = hot ? ACCENT : on(1) ? INK : DIM; f.lineWidth = 1;
+          f.beginPath();
+          if (kind === "Conference") { f.moveTo(x, y - s * 0.7); f.lineTo(x + s * 0.7, y); f.lineTo(x, y + s * 0.7); f.lineTo(x - s * 0.7, y); f.closePath(); }
+          else f.rect(x - s / 2, y - s / 2, s, s);
+          f.fillStyle = "#fff"; f.fill(); f.stroke();
+          if (kind === "Award") { f.fillStyle = f.strokeStyle; f.fillRect(x - s / 2, y - s / 2, s, s); }
+        }
+        if (n.item && hz === 1) { f.font = '9px "IBM Plex Mono", ui-monospace, monospace'; f.fillStyle = MID; f.textAlign = "left"; f.fillText(String(Math.floor(n.item.year)), x + 10, y - 10); }
       });
     }
 
@@ -307,23 +392,23 @@
     });
     f.globalAlpha = 1;
 
-    /* flow: soft drop → pixel on the grid → a point in the depth field */
+    /* flow: soft drop → crossing into the digital it becomes a pixel → a point in the depth field */
     const DIGITAL = portrait ? map(ZONES[1][0], 0)[1] : map(ZONES[1][0], 0)[0];
-    const speed = 150 * sc;
+    const speed = 150 * sc, trails = [];
     g.fillStyle = INK; g.beginPath(); f.fillStyle = INK; f.beginPath();
     flow = flow.filter(q => {
       const age = t - q.born;
-      let x, y, digital;
+      let x, y;
       if (age < q.dur) {
-        const s = ease(age / q.dur);
-        x = (1 - s) * (1 - s) * q.start[0] + 2 * (1 - s) * s * q.mid[0] + s * s * q.route[0][0];
-        y = (1 - s) * (1 - s) * q.start[1] + 2 * (1 - s) * s * q.mid[1] + s * s * q.route[0][1];
-        digital = (portrait ? y : x) > DIGITAL;
+        const s = ease(age / q.dur), a = q.route[0].pts[0];
+        x = (1 - s) * (1 - s) * q.start[0] + 2 * (1 - s) * s * q.mid[0] + s * s * a[0];
+        y = (1 - s) * (1 - s) * q.start[1] + 2 * (1 - s) * s * q.mid[1] + s * s * a[1];
       } else {
-        const d = (age - q.dur) * speed;
-        if (d < q.len) { [x, y] = alongPath(q.route, d); digital = true; }
+        let d = (age - q.dur) * speed, pos = null;
+        for (const e of q.route) { if (d <= e.len) { pos = alongPath(e.pts, d); break; } d -= e.len; }
+        if (pos) [x, y] = pos;
         else {
-          const k = clamp((d - q.len) / (110 * sc)), end = q.route[q.route.length - 1];
+          const k = clamp(d / (110 * sc)), last = q.route[q.route.length - 1].pts, end = last[last.length - 1];
           const L = layers[q.layer], [tx, ty, sd] = layerPt(L, L.pts[q.pt], view, t);
           x = lerp(end[0], tx, ease(k)); y = lerp(end[1], ty, ease(k)) - Math.sin(Math.PI * k) * 20 * sc;
           if (k >= 1) { land(q); return false; }
@@ -332,11 +417,16 @@
           return true;
         }
       }
-      if (digital) f.rect(x - 2, y - 2, 4, 4);   // past the boundary a drop becomes a crisp pixel
-      else dot(g, x, y, 3.8);
+      if ((portrait ? y : x) > DIGITAL) {                 // past the threshold a drop becomes a crisp pixel with a short signal trail
+        f.rect(x - 2, y - 2, 4, 4);
+        q.trail.push([x, y]); if (q.trail.length > 8) q.trail.shift();
+        trails.push(q.trail);
+      } else dot(g, x, y, 3.8);
       return true;
     });
     g.fill(); f.fill();
+    f.strokeStyle = "rgba(17,17,17,.18)"; f.lineWidth = 1;
+    trails.forEach(tr => { f.beginPath(); tr.forEach(([x, y], i) => (i ? f.lineTo(x, y) : f.moveTo(x, y))); f.stroke(); });
 
     // hovered item / stage tooltip
     if (mouse && hz >= 0) {
@@ -404,6 +494,15 @@
     layers.forEach(L => L.pts.forEach(p => (p.lit = rnd() < 0.1)));
   });
   root.querySelector("[data-down]").addEventListener("click", toIndex);
+  // design review: switch the middle stage between "neuron" and "curves"
+  const netBtn = root.querySelector("[data-net]");
+  const showNet = () => netBtn && (netBtn.innerHTML = `Network: <b>${NET === "neuron" ? "Neuron" : "Curves"}</b>`);
+  if (netBtn) netBtn.addEventListener("click", () => {
+    NET = NET === "neuron" ? "curves" : "neuron";
+    const url = new URL(location.href); url.searchParams.set("net", NET); history.replaceState(null, "", url);
+    buildNetwork(); flow = []; showNet();
+  });
+  showNet();
 
   new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(root);
   let rz;

@@ -89,6 +89,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .intro-steps b.on::before { content: "● "; color: var(--accent); font-size: 7px; vertical-align: 2px; }
 .intro-act button { color: var(--mid); transition: color .2s; }
 .intro-act button:hover { color: var(--accent); }
+.intro-act button b { font-weight: 400; color: var(--ink); }
 #index-body { border-top: 1px solid var(--line); }
 
 /* ── query ──────────────────────────────── */
