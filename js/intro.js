@@ -178,6 +178,7 @@
     const s = cam.D / (cam.D + Z);
     return [cam.c[0] + X * s * cam.f, cam.c[1] - Y * s * cam.f, s];
   }
+  const DEPTH_SIZE = 1.5;
   function layerGeometry() {
     const [ax, ay] = map(ZONES[2][0], -0.5), [bx, by] = map(ZONES[2][1], 0.5);
     const bw = Math.abs(bx - ax), bh = Math.abs(by - ay);
@@ -187,7 +188,8 @@
       const [x, y] = proj3(L.dx + a * RX * 0.8, L.y, b * RZ * 0.8, yaw, 0.3);
       x0 = Math.min(x0, x - cam.c[0]); x1 = Math.max(x1, x - cam.c[0]); y0 = Math.min(y0, y - cam.c[1]); y1 = Math.max(y1, y - cam.c[1]);
     })));
-    cam.f = Math.min((bw * 0.9) / (x1 - x0), (bh * 0.8) / (y1 - y0));
+    // DEPTH_SIZE > 1 lets the field spill past its zone (the bounds above are generous)
+    cam.f = DEPTH_SIZE * Math.min((bw * 0.9) / (x1 - x0), (bh * 0.8) / (y1 - y0));
   }
   const layerPt = (L, p, view, t) => proj3(L.dx + p.x * RX, L.y + (still ? 0 : Math.sin(t * 0.5 + p.ph) * 0.03), p.z * RZ, view.yaw, view.pitch);
 
@@ -374,7 +376,7 @@
         const fog = clamp((sd - 0.7) / 0.55);           // farther = fainter
         f.globalAlpha = appear * (0.15 + 0.85 * fog);
         f.fillStyle = p.lit ? (hot ? ACCENT : on(2) ? INK : DIM) : hot ? "#9a9a9a" : "#cfcfcf";
-        f.beginPath(); dot(f, x, y, (p.lit ? 2 : 1.1) * sd); f.fill();
+        f.beginPath(); dot(f, x, y, (p.lit ? 2.4 : 1.3) * sd); f.fill();
       });
     });
     f.globalAlpha = 1;
