@@ -12,9 +12,19 @@ js/intro.js     opening drawing (canvas animation)
 
 Preview locally: `python3 -m http.server` → http://localhost:8000
 
-## Opening — the research sequence (three stages, three doors)
+## Pages
 
-The first screen is a live canvas drawing that shows the research path in
+| Route | Page |
+|---|---|
+| `#/` | **Home** — only the opening drawing (click the name in the header to return) |
+| `#/search` | **Search** — typed query + Field / List of every work |
+| `#/material` · `#/conferences` · `#/publications` | the three research stages |
+| `#/about` | bio, CV, contact |
+| `#/p/<id>` | a work's sheet, opened over the current page |
+
+## Home — the research sequence (three stages, three doors)
+
+The home page is a live canvas drawing that shows the research path in
 three stages, left → right (top → bottom on phones). Each stage is also the
 way into its page:
 
@@ -29,9 +39,9 @@ merge like liquid; everything digital is drawn crisp. Stage counts and nodes
 come from `js/data.js` (`PROJECTS` material/paper, `IDEAS`, `TALKS`). Respects
 `prefers-reduced-motion`.
 
-## Concept — "Field"
+## Search — "Field"
 
-The home screen is a drawing, not a grid of thumbnails. Every work is plotted
+The Search page is a drawing, not a grid of thumbnails. Every work is plotted
 by **year (x)** and **scale (y)** — Material 10⁻³ m → Object → Interior →
 Public 10² m → Virtual ∞ (hatched band). A typed query (borrowed from the
 HED LAB search bar) filters the drawing live; type anything to search.

@@ -11,14 +11,14 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body data-view="index">
+<body data-view="home">
 
   <header class="top">
     <a class="id" href="#/" data-link>
       <span>Juyoung Lee</span><span class="ko">이주영</span>
     </a>
     <nav class="nav">
-      <a href="#/" data-link data-nav="index">Index</a>
+      <a href="#/search" data-link data-nav="search">Search</a>
       <a href="#/material" data-link data-nav="material">Material</a>
       <a href="#/conferences" data-link data-nav="talks">Conferences</a>
       <a href="#/publications" data-link data-nav="publications">Publications</a>
@@ -30,8 +30,8 @@
     </div>
   </header>
 
-  <!-- INDEX ─ query + field/list -->
-  <main id="view-index" class="view">
+  <!-- HOME ─ the research sequence (opened from the name in the header) -->
+  <main id="view-home" class="view">
     <section class="intro" id="intro" aria-label="Research sequence: material and ideation, presentations and awards, publications">
       <canvas class="goo"></canvas>
       <canvas class="fine"></canvas>
@@ -46,11 +46,14 @@
       <div class="intro-cap mono">
         <span>Juyoung Lee — Spatial research &amp; design, Seoul</span>
         <span class="intro-hint">Hover a stage · click to enter</span>
-        <span class="intro-act"><button data-replay>Replay</button><button data-down>All works ↓</button></span>
+        <span class="intro-act"><button data-replay>Replay</button><a href="#/search" data-down>Search all works →</a></span>
       </div>
     </section>
 
-    <div id="index-body">
+  </main>
+
+  <!-- SEARCH ─ typed query + field/list of every work -->
+  <main id="view-search" class="view" hidden>
     <section class="query">
       <label class="mono q-prefix" for="q">juyoung&nbsp;lee&nbsp;/</label>
       <div class="q-wrap">
@@ -87,7 +90,6 @@
       <div id="rows"></div>
       <div class="hover-img" id="hover-img"></div>
     </section>
-    </div>
   </main>
 
   <!-- 01 MATERIAL & IDEATION -->

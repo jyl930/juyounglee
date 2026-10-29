@@ -82,7 +82,7 @@
   });
   // any printable key on the index starts a search
   document.addEventListener("keydown", e => {
-    if (document.body.dataset.view !== "index" || document.body.classList.contains("sheet-open")) return;
+    if (document.body.dataset.view !== "search" || document.body.classList.contains("sheet-open")) return;
     if (document.activeElement === input || e.metaKey || e.ctrlKey || e.altKey || e.key.length !== 1) return;
     input.focus();
   });
@@ -278,8 +278,8 @@
       if (p) return openSheet(p);
     }
     closeSheet();
-    const views = { "#/material": "material", "#/conferences": "talks", "#/talks": "talks", "#/publications": "publications", "#/research": "publications", "#/about": "about" };
-    const view = views[h] || "index";
+    const views = { "#/search": "search", "#/material": "material", "#/conferences": "talks", "#/talks": "talks", "#/publications": "publications", "#/research": "publications", "#/about": "about" };
+    const view = views[h] || "home";
     const changed = lastView !== h || document.body.dataset.view !== view;
     lastView = h;
     document.body.dataset.view = view;
