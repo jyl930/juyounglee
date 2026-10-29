@@ -268,7 +268,7 @@
     [...linksEl.children].forEach((a, i) => a.classList.toggle("on", hz === i));
 
     // no dividing lines — only two faint words where one state turns into the next
-    f.font = '9px "IBM Plex Mono", ui-monospace, monospace'; f.fillStyle = DIM; f.textAlign = "center";
+    f.font = '9px "Noto Sans", Inter, sans-serif'; f.fillStyle = DIM; f.textAlign = "center";
     [[ZONES[1][0], "NON-DIGITAL → DIGITAL"], [ZONES[2][0], "DIGITAL → SPACE"]].forEach(([u, label], i) => {
       const k = prog(t, [T2, T3][i] - 0.2, 0.8);
       if (k <= 0) return;
@@ -353,7 +353,7 @@
         f.fillStyle = "#fff"; f.beginPath();
         if (kind === "Presentation") f.rect(x - 1.6, y - 1.6, 3.2, 3.2);
         f.fill();
-        if (n.item && hz === 1) { f.font = '9px "IBM Plex Mono", ui-monospace, monospace'; f.fillStyle = MID; f.textAlign = "left"; f.fillText(String(Math.floor(n.item.year)), x + 10, y - 10); }
+        if (n.item && hz === 1) { f.font = '9px "Noto Sans", Inter, sans-serif'; f.fillStyle = MID; f.textAlign = "left"; f.fillText(String(Math.floor(n.item.year)), x + 10, y - 10); }
       });
     }
 

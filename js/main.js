@@ -203,12 +203,24 @@
   });
   function renderSub(group, pg) {
     $("#sib").innerHTML = PAGES[group].map(x => `<a href="#/${group}/${x.id}" class="${x === pg ? "on" : ""}">${esc(x.label)}</a>`).join("");
+    $("#sub-title").textContent = pg.label;
     $("#sub-lead").textContent = pg.lead;
     const work = items.filter(p => p.type === pg.type);
     const cards = work.map(workCard);
     if (pg.type === "material") IDEAS.forEach((d, i) => cards.push(card(work.length + i, d.title, doc("Ideation", d.title), `${esc(d.note)} · ${d.year}`)));
     $("#sub-grid").innerHTML = cards.join("");
+    $("#sub-count").textContent = `${pad(cards.length)} items`;
   }
+  // large or small cards; the choice is kept for the next visit
+  function setSize(size) {
+    $("#sub-grid").classList.toggle("small", size === "small");
+    $$("[data-size]").forEach(b => b.classList.toggle("on", b.dataset.size === size));
+    try { localStorage.setItem("jy-size", size); } catch (_) {}
+  }
+  $$("[data-size]").forEach(b => b.addEventListener("click", () => setSize(b.dataset.size)));
+  let size = "large";
+  try { size = localStorage.getItem("jy-size") || size; } catch (_) {}
+  setSize(size);
 
   $("#bio").textContent = S.bio;
   $("#cv").innerHTML = S.cv.map(g => `<div class="cv-col"><h3 class="mono label">${esc(g.group)}</h3>` + g.items.map(it =>

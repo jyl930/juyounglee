@@ -35,9 +35,10 @@ still land on the matching page.
 
 All on-page text is English; Korean appears only in code comments.
 
-Fonts (all Google Fonts, SIL Open Font License): **Noto Sans** for text with
-**Inter** as its fallback, **Instrument Serif** for the header sentence and
-card titles, **IBM Plex Mono** for labels.
+Fonts (all Google Fonts, SIL Open Font License): **Noto Sans** for text and labels
+with **Inter** as its fallback, **Instrument Serif** for the header sentence
+and card titles. The LJY logo (`assets/logo.svg`) is the home link; `assets/favicon.png` is the tab icon.
+Sub-pages offer large / small cards (remembered per browser).
 | `#/p/<id>` | a work's sheet, opened over the current page |
 
 ## Home — the research sequence (three stages, three doors)
