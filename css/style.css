@@ -5,7 +5,7 @@
   --faint: #c9c9c9;
   --line: #ececec;
   --accent: #ff4a1c;
-  --sans: "Urbanist", "Inter", -apple-system, "Helvetica Neue", sans-serif;   /* Inter is the fallback, as in Figma */
+  --sans: "Noto Sans", "Inter", -apple-system, "Helvetica Neue", sans-serif;   /* Inter is the fallback, as in Figma */
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   --serif: "Instrument Serif", "Times New Roman", serif;
   --gut: 24px;

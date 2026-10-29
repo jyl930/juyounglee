@@ -35,7 +35,7 @@ still land on the matching page.
 
 All on-page text is English; Korean appears only in code comments.
 
-Fonts (all Google Fonts, SIL Open Font License): **Urbanist** for text with
+Fonts (all Google Fonts, SIL Open Font License): **Noto Sans** for text with
 **Inter** as its fallback, **Instrument Serif** for the header sentence and
 card titles, **IBM Plex Mono** for labels.
 | `#/p/<id>` | a work's sheet, opened over the current page |
