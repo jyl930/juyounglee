@@ -19,7 +19,7 @@ Preview locally: `python3 -m http.server` → http://localhost:8000
 | `#/` | **Home** — only the opening drawing (click the name in the header to return) |
 | `#/search` | **Search** — typed query + Field / List of every work |
 | `#/material` · `#/conferences` · `#/publications` | the three research stages |
-| `#/about` | bio, CV, contact |
+| `#/hello` | **Hello** — bio, CV, contact (`#/about` still works) |
 | `#/p/<id>` | a work's sheet, opened over the current page |
 
 ## Home — the research sequence (three stages, three doors)
