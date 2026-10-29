@@ -313,12 +313,20 @@ a.card:hover .doc.plate .mono { color: rgba(255,255,255,.85); }
 .grid.small .doc.plate { padding: 12px; }
 .grid.small .doc.plate b { font-size: 13px; -webkit-line-clamp: 4; }
 
-.cv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px var(--gut); border-top: 1px solid var(--ink); padding-top: 14px; }
+/* Hello: intro on the left (stays while the CV scrolls), CV groups stacked on the right */
+.hello { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px clamp(32px, 6vw, 120px); align-items: start; }
+.hello-intro { position: sticky; top: 120px; }
+.hello-intro .lead { margin-top: 4px; }
+.hello-intro .contact { margin-top: 28px; }
+.cv-list { display: flex; flex-direction: column; gap: 48px; }
+.cv-col .label { border-bottom: 1px solid var(--ink); padding-bottom: 8px; margin: 0; }
+.cv-col .cv-row:first-of-type { border-top: 0; }
 .cv-row { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); }
 .cv-row b { font-weight: 400; display: block; }
 .cv-row small { color: var(--mid); display: block; }
 .cv-row .mono { color: var(--mid); padding-top: 2px; }
-.contact a { border-bottom: 1px solid var(--faint); margin-right: 18px; }
+.contact { line-height: 2; }
+.contact a { border-bottom: 1px solid var(--faint); margin-right: 18px; white-space: nowrap; }
 .contact a:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ── sheet ──────────────────────────────── */
@@ -361,6 +369,8 @@ body.sheet-open .sheet { transform: none; }
   .intro-cap > span:first-child, .intro-hint { display: none; }
   .sib { display: flex; }
   .grid-tools { margin-top: 64px; }
+  .hello { grid-template-columns: 1fr; }
+  .hello-intro { position: static; }
   .tabs { display: flex; flex-wrap: wrap; gap: 0 16px; }
   .tabs button, .tabs button:not(:first-child) { border: 0; padding: 8px 0; }
   .search-link { position: absolute; right: var(--gut); top: 16px; }
