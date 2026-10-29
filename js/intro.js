@@ -24,7 +24,7 @@
   const tipEl = document.getElementById("intro-tip"), linksEl = document.getElementById("stage-links");
   const SITE = window.SITE, STAGES = SITE.stages;
   const PROJ = window.PROJECTS || [], IDEAS = window.IDEAS || [];
-  const TALKS = (window.TALKS || []).slice().sort((a, b) => a.year - b.year);
+  const TALKS = PROJ.filter(p => p.type === "conference").sort((a, b) => a.year - b.year);
   const MATS = PROJ.filter(p => p.type === "material").sort((a, b) => b.year - a.year);
   const PAPERS = PROJ.filter(p => p.type === "paper").sort((a, b) => a.year - b.year);
   const INK = "#111", DIM = "#c9c9c9", LINE = "#d4d4d4", MID = "#8c8c8c", ACCENT = "#ff4a1c";
@@ -340,7 +340,7 @@
         const kn = prog(t, T2 + 0.3 + (n.u - 0.4) * 4 + i * 0.02, 0.6);
         if (kn <= 0) return;
         const [x, y] = map(n.u, n.v), hot = hit && hit.node === n;
-        const kind = n.item ? n.item.kind : "Presentation";
+        const kind = n.item && n.item.award ? "Award" : "Presentation";
         // cell body: a soft blob with a few lobes that breathe
         const r = (kind === "Award" ? 8 : 6.5) * kn + (hot ? 1.5 : 0);
         g.fillStyle = hot ? ACCENT : on(1) ? INK : DIM; g.beginPath(); dot(g, x, y, r);
@@ -349,10 +349,9 @@
           dot(g, x + Math.cos(a) * r * 0.55, y + Math.sin(a) * r * 0.55, r * 0.55);
         }
         g.fill();
-        // kind, as a small white mark inside: □ presentation · ◇ conference · solid = award
+        // kind, as a small white mark inside: □ presentation · solid = award
         f.fillStyle = "#fff"; f.beginPath();
         if (kind === "Presentation") f.rect(x - 1.6, y - 1.6, 3.2, 3.2);
-        if (kind === "Conference") { f.moveTo(x, y - 2.4); f.lineTo(x + 2.4, y); f.lineTo(x, y + 2.4); f.lineTo(x - 2.4, y); f.closePath(); }
         f.fill();
         if (n.item && hz === 1) { f.font = '9px "IBM Plex Mono", ui-monospace, monospace'; f.fillStyle = MID; f.textAlign = "left"; f.fillText(String(Math.floor(n.item.year)), x + 10, y - 10); }
       });
@@ -446,7 +445,7 @@
         : { cluster: best, route: STAGES[0].route };
     }
     if (hoverZone === 1) {
-      for (const n of nodes) { const [nx, ny] = map(n.u, n.v); if (Math.abs(nx - x) < 14 && Math.abs(ny - y) < 14 && n.item) return { node: n, route: STAGES[1].route, kicker: `${n.item.kind} · ${Math.floor(n.item.year)}`, title: n.item.title, sub: n.item.venue }; }
+      for (const n of nodes) { const [nx, ny] = map(n.u, n.v); if (Math.abs(nx - x) < 14 && Math.abs(ny - y) < 14 && n.item) return { node: n, route: STAGES[1].route, kicker: `${n.item.award || "Presentation"} · ${Math.floor(n.item.year)}`, title: n.item.title, sub: n.item.venue }; }
     }
     if (hoverZone === 2) {
       let best = null, bd = 1;

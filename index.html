@@ -17,16 +17,16 @@
     <a class="id" href="#/" data-link>
       <span>Juyoung Lee</span>
     </a>
-    <!-- the navigation reads as one sentence; only the three words are links -->
+    <!-- the navigation reads as one sentence; only the three words are links,
+         and research / design open their sub-pages on hover -->
     <nav class="nav">
-      <a href="#/hello" data-link data-nav="hello">Hello</a>, I
-      <a href="#/research" data-link data-nav="research">research</a> and
-      <a href="#/design" data-link data-nav="design">design</a>
+      <span class="nav-item"><a href="#/hello" data-link data-nav="hello">Hello</a></span>, I
+      <span class="nav-item"><a href="#/research" data-link data-nav="research">research</a><span class="drop mono" data-drop="research"></span></span> and
+      <span class="nav-item"><a href="#/design" data-link data-nav="design">design</a><span class="drop mono" data-drop="design"></span></span>
     </nav>
-    <div class="meta mono">
-      <span id="loc"></span>
-      <span id="clock"></span>
-    </div>
+    <a class="search-link mono" href="#/search" data-nav="search">Search
+      <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="5" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="10.2" y1="10.2" x2="15" y2="15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </a>
   </header>
 
   <!-- HOME ─ the research sequence (opened from the name in the header) -->
@@ -63,14 +63,16 @@
     </section>
 
     <div class="tools mono">
-      <div class="filters" id="filters"></div>
       <div class="modes">
         <button data-mode="field" class="on">Field</button>
         <button data-mode="list">List</button>
       </div>
     </div>
 
-    <section class="field" id="field" aria-label="Projects plotted by year and scale">
+    <!-- the columns of the field are the sub-pages; each header is a tab that filters -->
+    <div class="tabs mono" id="filters"></div>
+
+    <section class="field" id="field" aria-label="Work plotted by category and year">
       <div class="axis-y mono" id="axis-y"></div>
       <div class="plane" id="plane">
         <div class="cross cross-x"></div>
@@ -79,7 +81,6 @@
         <div class="marks" id="marks"></div>
         <div class="tip" id="tip"></div>
       </div>
-      <div class="axis-x mono" id="axis-x"></div>
     </section>
 
     <section class="list" id="list" hidden>
@@ -94,10 +95,7 @@
   <!-- HELLO ─ bio + CV -->
   <main id="view-hello" class="view" hidden>
     <div class="wide">
-      <header class="wide-head">
-        <h1 class="serif">Hello</h1>
-        <p class="lead" id="bio"></p>
-      </header>
+      <header class="wide-head"><p class="lead" id="bio"></p></header>
       <div class="cv-grid" id="cv"></div>
       <section class="sec">
         <header class="sec-head"><span class="mono">Contact</span></header>
@@ -106,28 +104,12 @@
     </div>
   </main>
 
-  <!-- RESEARCH ─ publications · conferences & awards · exhibitions -->
-  <main id="view-research" class="view" hidden>
+  <!-- SUB-PAGE ─ one page per sub-item of research / design: intro text + cards -->
+  <main id="view-sub" class="view" hidden>
     <div class="wide">
-      <header class="wide-head">
-        <h1 class="serif">research</h1>
-        <p class="lead" id="research-lead"></p>
-        <p class="mono interests" id="interests"></p>
-      </header>
-      <nav class="sub-nav mono" data-subnav="research"></nav>
-      <div id="research-secs"></div>
-    </div>
-  </main>
-
-  <!-- DESIGN ─ virtual · public · UX/UI projects -->
-  <main id="view-design" class="view" hidden>
-    <div class="wide">
-      <header class="wide-head">
-        <h1 class="serif">design</h1>
-        <p class="lead">Design work from undergraduate studios to graduate courses — virtual spaces including the graduation project, public projects, and UX/UI explored as speculative cases.</p>
-      </header>
-      <nav class="sub-nav mono" data-subnav="design"></nav>
-      <div id="design-secs"></div>
+      <nav class="sib mono" id="sib"></nav>
+      <header class="wide-head"><p class="lead" id="sub-lead"></p></header>
+      <div class="grid" id="sub-grid"></div>
     </div>
   </main>
 
@@ -147,7 +129,7 @@
 
   <footer class="foot mono">
     <span>© <span id="yr"></span> Juyoung Lee</span>
-    <span>Plotted by year × scale</span>
+    <span>Plotted by category × year</span>
   </footer>
 
   <script src="js/data.js"></script>

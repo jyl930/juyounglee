@@ -15,22 +15,23 @@ Preview locally: `python3 -m http.server` → http://localhost:8000
 ## Pages
 
 The header reads as one sentence — **Hello, I research and design** — and only
-the three words are links (Instrument Serif italic).
+the three words are links (Instrument Serif italic). Hovering *research* or
+*design* opens its sub-pages; on phones each sub-page shows its siblings at the
+top instead. On the right, **Search** (with a magnifier) opens the search page.
 
 | Route | Page |
 |---|---|
 | `#/` | **Home** — only the opening drawing (click the name in the header to return) |
-| `#/hello` | **Hello** — bio and CV (education, affiliation, awards, conferences, exhibitions), contact |
-| `#/research` | **research** — Publications · Conferences & Awards · Exhibitions (material + ideation) |
-| `#/design` | **design** — Virtual Space (undergrad, graduation work) · Public Projects · UX/UI (graduate coursework) |
-| `#/research/<section>` · `#/design/<section>` | jump to a section (sticky sub-tabs on desktop) |
-| `#/search` | **Search** — typed query + Field / List of every work (linked from Home) |
+| `#/hello` | bio and CV, contact |
+| `#/research/publications` · `#/research/conferences` | research sub-pages (awards are noted on the presentation they were given for) |
+| `#/design/exhibition` · `#/design/interior-architecture` · `#/design/architecture` | design sub-pages |
+| `#/search` | typed query + Field / List of every work |
 | `#/p/<id>` | a work's sheet, opened over the current page |
 
-Research and design pages lay their work out as a full-width, numbered card
-grid. Work without images (papers, talks, ideas) gets a text "page" card.
-Older addresses (`#/material`, `#/conferences`, `#/publications`, `#/about`)
-still land on the matching section.
+Every sub-page is just its intro text and a full-width, numbered card grid;
+which page shows which work is set in `SITE.pages` (one `type` per page).
+Older addresses (`#/material`, `#/conferences`, `#/publications`, `#/about`, …)
+still land on the matching page.
 
 All on-page text is English; Korean appears only in code comments.
 | `#/p/<id>` | a work's sheet, opened over the current page |
@@ -56,9 +57,10 @@ speed; once every stage has appeared the motion eases down to `PACE` in
 
 ## Search — "Field"
 
-The Search page is a drawing, not a grid of thumbnails. Every work is plotted
-by **year (x)** and **scale (y)** — Material 10⁻³ m → Object → Interior →
-Public 10² m → Virtual ∞ (hatched band). A typed query (borrowed from the
+The Search page is a drawing, not a grid of thumbnails. Its columns are the
+five sub-pages — the tabs on top (○ Publications · □ Conferences · ■ Exhibition
+· ◆ Interior Architecture · ● Architecture) filter them — and its rows are the
+years, newest on top. A typed query (borrowed from the
 HED LAB search bar) filters the drawing live; type anything to search.
 Hover shows a crosshair + coordinate readout and a preview; click opens the
 project sheet. `List` gives a quiet index with hover previews.
