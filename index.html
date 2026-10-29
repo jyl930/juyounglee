@@ -16,7 +16,7 @@
 
   <header class="top">
     <a class="id" href="#/" data-link aria-label="Juyoung Lee — home">
-      <img src="assets/logo.png" alt="Juyoung Lee" width="359" height="472">
+      <img src="assets/logo.svg" alt="Juyoung Lee" width="69" height="91">
     </a>
     <!-- the navigation reads as one sentence; only the three words are links,
          and research / design open their sub-pages on hover -->
@@ -109,7 +109,18 @@
   <main id="view-sub" class="view" hidden>
     <div class="wide">
       <nav class="sib mono" id="sib"></nav>
-      <header class="wide-head"><p class="lead" id="sub-lead"></p></header>
+      <header class="wide-head">
+        <h1 class="sub-title" id="sub-title"></h1>
+        <p class="lead" id="sub-lead"></p>
+      </header>
+      <!-- large / small cards, for when the pages fill up -->
+      <div class="grid-tools mono">
+        <span id="sub-count"></span>
+        <span class="sizes" role="group" aria-label="Card size">
+          <button data-size="large" aria-label="Large cards" title="Large"><svg viewBox="0 0 14 14" width="14" height="14"><rect x="0" y="0" width="6" height="6"/><rect x="8" y="0" width="6" height="6"/><rect x="0" y="8" width="6" height="6"/><rect x="8" y="8" width="6" height="6"/></svg></button>
+          <button data-size="small" aria-label="Small cards" title="Small"><svg viewBox="0 0 14 14" width="14" height="14"><rect x="0" y="0" width="3.4" height="3.4"/><rect x="5.3" y="0" width="3.4" height="3.4"/><rect x="10.6" y="0" width="3.4" height="3.4"/><rect x="0" y="5.3" width="3.4" height="3.4"/><rect x="5.3" y="5.3" width="3.4" height="3.4"/><rect x="10.6" y="5.3" width="3.4" height="3.4"/><rect x="0" y="10.6" width="3.4" height="3.4"/><rect x="5.3" y="10.6" width="3.4" height="3.4"/><rect x="10.6" y="10.6" width="3.4" height="3.4"/></svg></button>
+        </span>
+      </div>
       <div class="grid" id="sub-grid"></div>
     </div>
   </main>
