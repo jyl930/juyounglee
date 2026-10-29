@@ -82,7 +82,7 @@
   });
   // any printable key on the index starts a search
   document.addEventListener("keydown", e => {
-    if (document.body.dataset.view !== "index" || document.body.classList.contains("sheet-open")) return;
+    if (document.body.dataset.view !== "search" || document.body.classList.contains("sheet-open")) return;
     if (document.activeElement === input || e.metaKey || e.ctrlKey || e.altKey || e.key.length !== 1) return;
     input.focus();
   });
@@ -217,7 +217,7 @@
   }));
   renderTalks("All");
 
-  /* ── publications / about ──────────────────────────── */
+  /* ── publications / hello ──────────────────────────── */
   $("#research-lead").textContent = "디지털과 비디지털이 만나는 자리에서 공간이 하는 역할을 연구합니다. 어포던스, 디지털 포용, 디지털 웰빙의 관점에서 공공 공간과 전시 공간을 봅니다.";
   $("#interests").innerHTML = S.interests.map(i => `<li>${esc(i)}</li>`).join("");
   $("#pubs").innerHTML = items.filter(p => p.type === "paper").map(p =>
@@ -278,8 +278,8 @@
       if (p) return openSheet(p);
     }
     closeSheet();
-    const views = { "#/material": "material", "#/conferences": "talks", "#/talks": "talks", "#/publications": "publications", "#/research": "publications", "#/about": "about" };
-    const view = views[h] || "index";
+    const views = { "#/search": "search", "#/material": "material", "#/conferences": "talks", "#/talks": "talks", "#/publications": "publications", "#/research": "publications", "#/hello": "about", "#/about": "about" };
+    const view = views[h] || "home";
     const changed = lastView !== h || document.body.dataset.view !== view;
     lastView = h;
     document.body.dataset.view = view;

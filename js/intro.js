@@ -450,7 +450,6 @@
   }
 
   /* ── interaction ── */
-  const toIndex = () => document.getElementById("index-body").scrollIntoView({ behavior: still ? "auto" : "smooth" });
   root.addEventListener("pointermove", e => {
     const r = fcv.getBoundingClientRect();
     mouse = [e.clientX - r.left, e.clientY - r.top];
@@ -469,9 +468,12 @@
     t0 = performance.now(); last = 0; nextSpawn = 0; flow = [];
     layers.forEach(L => L.pts.forEach(p => (p.lit = rnd() < 0.1)));
   });
-  root.querySelector("[data-down]").addEventListener("click", toIndex);
 
-  new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(root);
+  // the page may open on another view, so size the drawing whenever it comes into view
+  new IntersectionObserver(([e]) => {
+    visible = e.isIntersecting;
+    if (visible && (W !== root.clientWidth || H !== root.clientHeight)) layout();
+  }).observe(root);
   let rz;
   window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { layout(); draw(0); }, 120); });
 
