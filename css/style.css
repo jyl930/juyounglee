@@ -316,7 +316,8 @@ a.card:hover .doc.plate .mono { color: rgba(255,255,255,.85); }
 /* Hello: intro on the left (stays while the CV scrolls), CV groups stacked on the right */
 .hello { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px clamp(32px, 6vw, 120px); align-items: start; }
 .hello-intro { position: sticky; top: 120px; }
-.hello-intro .lead { margin-top: 4px; }
+.hello-title { font-size: clamp(40px, 4.2vw, 60px); line-height: 1.02; margin: 0 0 40px; }   /* the header's serif */
+.hello-intro .lead { margin-top: 0; }
 .hello-intro .contact { margin-top: 28px; }
 .cv-list { display: flex; flex-direction: column; gap: 48px; }
 .cv-col .label { border-bottom: 1px solid var(--ink); padding-bottom: 8px; margin: 0; }
