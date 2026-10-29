@@ -18,9 +18,7 @@ window.SITE = {
   role: "Researcher / Designer",
   email: "jyl930@hanyang.ac.kr",
   links: [
-    { label: "HED LAB", href: "https://hedlab.hanyang.ac.kr" },
-    { label: "Google Scholar", href: "#" }, // TODO
-    { label: "Instagram", href: "#" }       // TODO
+    { label: "HED LAB", href: "https://hedlab.hanyang.ac.kr" }
   ],
 
   // 첫 화면 시퀀스의 세 단계 — 각 단계를 누르면 해당 페이지로 이동

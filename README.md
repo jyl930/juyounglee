@@ -26,7 +26,7 @@ top instead. On the right, **Search** (with a magnifier) opens the search page.
 | Route | Page |
 |---|---|
 | `#/` | **Home** — only the opening drawing (click the name in the header to return) |
-| `#/hello` | two columns: "Hello, I'm Juyoung Lee", bio and contact on the left (stays put); CV groups stacked on the right |
+| `#/hello` | two columns: "Hello, / I'm Juyoung Lee" (serif), bio and contact on the left (stays put); CV groups stacked on the right |
 | `#/research/publications` · `#/research/conferences` | research sub-pages (awards are noted on the presentation they were given for) |
 | `#/design/exhibition` · `#/design/interior-architecture` · `#/design/architecture` | design sub-pages |
 | `#/search` | typed query + Field / List of every work |
