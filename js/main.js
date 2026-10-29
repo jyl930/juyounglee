@@ -150,7 +150,7 @@
     near = p;
     if (!p) return tip.classList.remove("on");
     p._mk.classList.add("near");
-    tip.innerHTML = `${drawing(p.id, T[p.type].label)}<b>${esc(p.title)}</b><small>${esc(p.titleKo)} · ${Math.floor(p.year)}</small>`;
+    tip.innerHTML = `${drawing(p.id, T[p.type].label)}<b>${esc(p.title)}</b><small>${esc(p.titleKo || p.venue)} · ${Math.floor(p.year)}</small>`;
     const mx = (px(p.year) / 100) * rect.width, my = (py(p.scale) / 100) * rect.height;
     tip.style.left = Math.min(mx + 20, rect.width - 232) + "px";
     tip.style.top = (my > rect.height - 200 ? my - 200 : my + 16) + "px";
@@ -196,13 +196,13 @@
   });
   document.addEventListener("pointermove", e => { hov.style.left = e.clientX + 24 + "px"; hov.style.top = e.clientY - 85 + "px"; });
 
-  /* ── stage pages: 01 material & ideation · 02 talks · 03 publications ── */
+  /* ── stage pages: 01 material & ideation · 02 conferences & awards · 03 publications ── */
   const STAGES = S.stages, TALKS = window.TALKS || [], IDEAS = window.IDEAS || [];
   $$("[data-strip]").forEach(el => {
     el.innerHTML = STAGES.map(st => `<a href="${st.route}" class="${st.key === el.dataset.strip ? "on" : ""}"><span>${st.no}</span>${esc(st.label)}<small>${esc(st.ko)}</small></a>`).join("");
   });
   $("#material-cards").innerHTML = items.filter(p => p.type === "material").map(p =>
-    `<a class="card" href="#/p/${p.id}">${drawing(p.id, p.no)}<b>${esc(p.title)}</b><small>${esc(p.titleKo)} · ${Math.floor(p.year)}</small></a>`).join("");
+    `<a class="card" href="#/p/${p.id}">${drawing(p.id, p.no)}<b>${esc(p.title)}</b><small>${esc(p.titleKo || p.venue)} · ${Math.floor(p.year)}</small></a>`).join("");
   $("#ideas").innerHTML = IDEAS.map(d =>
     `<div class="cv-row"><span class="mono">${d.year}</span><span><b>${esc(d.title)}</b><small>${esc(d.titleKo)} — ${esc(d.note)}</small></span></div>`).join("");
   const kinds = ["All", ...new Set(TALKS.map(x => x.kind))];
@@ -218,10 +218,10 @@
   renderTalks("All");
 
   /* ── publications / about ──────────────────────────── */
-  $("#research-lead").textContent = "공간을 경험하는 사람의 감각과 행동을, 재료·실내·공공·가상의 서로 다른 척도에서 관찰하고 설계합니다.";
+  $("#research-lead").textContent = "디지털과 비디지털이 만나는 자리에서 공간이 하는 역할을 연구합니다. 어포던스, 디지털 포용, 디지털 웰빙의 관점에서 공공 공간과 전시 공간을 봅니다.";
   $("#interests").innerHTML = S.interests.map(i => `<li>${esc(i)}</li>`).join("");
   $("#pubs").innerHTML = items.filter(p => p.type === "paper").map(p =>
-    `<a class="pub" href="#/p/${p.id}"><span class="mono">${Math.floor(p.year)}</span><span><b>${esc(p.title)}</b><small>${esc(p.titleKo)} — ${esc(p.venue)} · ${esc(p.role)}</small></span></a>`).join("");
+    `<a class="pub" href="#/p/${p.id}"><span class="mono">${Math.floor(p.year)}</span><span><b>${esc(p.title)}</b><small>${p.titleKo ? esc(p.titleKo) + " — " : ""}${esc(p.venue)} · ${esc(p.role)}</small></span></a>`).join("");
   $("#bio-ko").textContent = S.bio.ko;
   $("#bio-en").textContent = S.bio.en;
   $("#cv").innerHTML = S.cv.map(g => `<h3 class="mono label">${esc(g.group)}</h3>` + g.items.map(it =>
@@ -237,7 +237,7 @@
     const gal = Array.from({ length: n }, (_, i) => drawing(p.id + i, `IMAGE ${String(i + 1).padStart(2, "0")}`).replace('class="ph"', `class="ph${i % 3 === 0 ? " wide" : ""}"`)).join("");
     $("#sheet-body").innerHTML = `
       <h1>${esc(p.title)}</h1>
-      <h2>${esc(p.titleKo)}</h2>
+      <h2>${esc(p.titleKo || p.venue)}</h2>
       <div class="facts">
         <div><span class="mono">Year</span>${Math.floor(p.year)}</div>
         <div><span class="mono">Type</span>${esc(T[p.type].ko)}</div>
@@ -278,7 +278,7 @@
       if (p) return openSheet(p);
     }
     closeSheet();
-    const views = { "#/material": "material", "#/talks": "talks", "#/publications": "publications", "#/research": "publications", "#/about": "about" };
+    const views = { "#/material": "material", "#/conferences": "talks", "#/talks": "talks", "#/publications": "publications", "#/research": "publications", "#/about": "about" };
     const view = views[h] || "index";
     const changed = lastView !== h || document.body.dataset.view !== view;
     lastView = h;

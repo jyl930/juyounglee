@@ -6,7 +6,7 @@
  *                            fibres; loose ideas drift between them.
  *   02 Presentations/Awards  crossing into the digital, particles become
  *                            pixels and travel a narrowing network whose
- *                            nodes are the talks, joined by organic,
+ *                            nodes are the conference talks and awards, joined by organic,
  *                            neuron-like fibres.
  *   03 Publications          pixels drift into a field of depth — soft, edgeless
  *                            clouds of points, one per paper, seen in
@@ -25,7 +25,7 @@
   const SITE = window.SITE, STAGES = SITE.stages;
   const PROJ = window.PROJECTS || [], IDEAS = window.IDEAS || [];
   const TALKS = (window.TALKS || []).slice().sort((a, b) => a.year - b.year);
-  const MATS = PROJ.filter(p => p.type === "material");
+  const MATS = PROJ.filter(p => p.type === "material").sort((a, b) => b.year - a.year);
   const PAPERS = PROJ.filter(p => p.type === "paper").sort((a, b) => a.year - b.year);
   const INK = "#111", DIM = "#c9c9c9", LINE = "#d4d4d4", MID = "#8c8c8c", ACCENT = "#ff4a1c";
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -51,13 +51,14 @@
   const KINDS = ["pool", "grain", "fiber"];
   let clusters = [], ideas = [];
   function buildMaterial() {
-    const K = Math.max(3, MATS.length);
+    // at most six samples in the drawing (newest first); the page lists every work
+    const K = Math.max(3, Math.min(6, MATS.length)), many = K > 4;
     clusters = Array.from({ length: K }, (_, k) => {
-      const kind = KINDS[k % 3], n = { pool: 46, grain: 30, fiber: 42 }[kind];
-      const c = { k, kind, item: MATS[k] || null, u: 0.1 + (k % 2 ? 0.14 : 0.02) + rnd() * 0.04, v: -0.3 + (k + 0.5) * (0.6 / K), rot: rnd() * Math.PI, parts: [] };
+      const kind = KINDS[k % 3], n = Math.round({ pool: 46, grain: 30, fiber: 42 }[kind] * (many ? 0.7 : 1));
+      const c = { k, kind, item: MATS[k] || null, u: 0.1 + (k % 2 ? 0.14 : 0.02) + rnd() * 0.04, v: -0.33 + (k + 0.5) * (0.66 / K), rot: rnd() * Math.PI, parts: [] };
       for (let i = 0; i < n; i++) c.parts.push({
         a: rnd() * Math.PI * 2, w: (rnd() < 0.5 ? -1 : 1) * (0.15 + rnd() * 0.45),
-        rr: kind === "pool" ? Math.sqrt(rnd()) * 34 : kind === "grain" ? 14 + rnd() * 54 : 0.6 + rnd() * 0.4,
+        rr: (many ? 0.75 : 1) * (kind === "pool" ? Math.sqrt(rnd()) * 34 : kind === "grain" ? 14 + rnd() * 54 : 0.6 + rnd() * 0.4),
         ph: rnd() * 7, dx: 0, dy: 0
       });
       return c;
@@ -164,10 +165,10 @@
     layers = Array.from({ length: P }, (_, k) => {
       const pts = [];
       for (let i = 0; i < LN; i++) {
-        const r = Math.sqrt(-2 * Math.log(1 - rnd() * 0.995)) * 0.38, a = rnd() * Math.PI * 2;
+        const r = Math.sqrt(-2 * Math.log(1 - rnd() * 0.995)) * (P > 3 ? 0.3 : 0.38), a = rnd() * Math.PI * 2;
         pts.push({ x: Math.cos(a) * r, z: Math.sin(a) * r, lit: rnd() < (still ? 0.5 : 0.1), ph: rnd() * 7 });
       }
-      return { k, item: PAPERS[k] || null, pts, y: (k - (P - 1) / 2) * 1.0, dx: (k % 2 ? 1 : -1) * (0.12 + rnd() * 0.18), box: null };
+      return { k, item: PAPERS[k] || null, pts, y: (k - (P - 1) / 2) * (P <= 3 ? 1 : 3.4 / (P - 1)), dx: (k % 2 ? 1 : -1) * (0.12 + rnd() * 0.18), box: null };
     });
   }
   function proj3(x, y, z, yaw, pitch) {
@@ -220,7 +221,7 @@
     layerGeometry();
     flow = [];
     // stage links sit at the head of each zone
-    const counts = [MATS.length + IDEAS.length, TALKS.length, PAPERS.length];
+    const counts = [MATS.length, TALKS.length, PAPERS.length];
     linksEl.innerHTML = STAGES.map((s, i) => `<a href="${s.route}" data-zone="${i}"><span><b>${s.no}</b>${esc(s.label)}<i>${counts[i]}</i></span><small>${esc(s.ko)}</small></a>`).join("");
     [...linksEl.children].forEach((a, i) => {
       const [x, y] = map(ZONES[i][0], 0);
@@ -428,11 +429,11 @@
       let best = null, bd = 80 * sc;
       clusters.forEach(c => { const [cx, cy] = clusterCenter(c), dd = Math.hypot(cx - x, cy - y); if (dd < bd) { bd = dd; best = c; } });
       if (best) return best.item
-        ? { cluster: best, route: `#/p/${best.item.id}`, kicker: `Material · ${Math.floor(best.item.year)}`, title: best.item.title, sub: best.item.titleKo }
+        ? { cluster: best, route: `#/p/${best.item.id}`, kicker: `Material · ${Math.floor(best.item.year)}`, title: best.item.title, sub: best.item.titleKo || best.item.venue }
         : { cluster: best, route: "#/material" };
     }
     if (hoverZone === 1) {
-      for (const n of nodes) { const [nx, ny] = map(n.u, n.v); if (Math.abs(nx - x) < 14 && Math.abs(ny - y) < 14 && n.item) return { node: n, route: "#/talks", kicker: `${n.item.kind} · ${Math.floor(n.item.year)}`, title: n.item.title, sub: n.item.venue }; }
+      for (const n of nodes) { const [nx, ny] = map(n.u, n.v); if (Math.abs(nx - x) < 14 && Math.abs(ny - y) < 14 && n.item) return { node: n, route: STAGES[1].route, kicker: `${n.item.kind} · ${Math.floor(n.item.year)}`, title: n.item.title, sub: n.item.venue }; }
     }
     if (hoverZone === 2) {
       let best = null, bd = 1;
