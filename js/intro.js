@@ -235,13 +235,21 @@
   const view = { yaw: 0, pitch: 0.3 };
   let t0 = performance.now(), t = 0, visible = true, mouse = null, hoverZone = -1, hit = null;
 
-  // PACE < 1 slows the whole drawing (reveal, flow, drift, sway); the cursor still responds in real time
-  const PACE = 0.55;
+  // The build-up plays at full speed; once every stage has appeared the clock
+  // eases down to PACE (< 1 = slower flow, drift and sway). The cursor always responds in real time.
+  const PACE = 0.55, EASE_OUT = 1.5;
+  const builtAt = () => T3 + (layers.length - 1) * 0.4 + 1.2;
+  function clock(real) {
+    const B = builtAt(), x = real - B;
+    if (x <= 0) return real;
+    if (x < EASE_OUT) return B + x - ((1 - PACE) * x * x) / (2 * EASE_OUT);
+    return B + EASE_OUT * (1 + PACE) / 2 + (x - EASE_OUT) * PACE;
+  }
   let lastNow = 0;
   function frame(now) {
     requestAnimationFrame(frame);
     if (!visible) return;
-    t = still ? 30 : ((now - t0) / 1000) * PACE;
+    t = still ? 30 : clock((now - t0) / 1000);
     const dt = Math.min(0.05, (now - lastNow) / 1000); lastNow = now;
     if (!still && t > T_FLOW) {
       const rate = 0.36 - 0.24 * clamp((t - T_FLOW) / 4);
