@@ -20,6 +20,8 @@ Preview locally: `python3 -m http.server` → http://localhost:8000
 | `#/search` | **Search** — typed query + Field / List of every work |
 | `#/material` · `#/conferences` · `#/publications` | the three research stages |
 | `#/hello` | **Hello** — bio, CV, contact (`#/about` still works) |
+
+All on-page text is English; Korean appears only in code comments.
 | `#/p/<id>` | a work's sheet, opened over the current page |
 
 ## Home — the research sequence (three stages, three doors)
@@ -37,7 +39,8 @@ way into its page:
 No dividing lines between stages — only two faint words mark the thresholds. Soft particles use an SVG "goo" filter (blur + alpha threshold) so they
 merge like liquid; everything digital is drawn crisp. Stage counts and nodes
 come from `js/data.js` (`PROJECTS` material/paper, `IDEAS`, `TALKS`). Respects
-`prefers-reduced-motion`.
+`prefers-reduced-motion`. `PACE` in `js/intro.js` sets the overall speed
+(lower = slower; the cursor still responds in real time).
 
 ## Search — "Field"
 
