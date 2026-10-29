@@ -14,12 +14,23 @@ Preview locally: `python3 -m http.server` → http://localhost:8000
 
 ## Pages
 
+The header reads as one sentence — **Hello, I research and design** — and only
+the three words are links (Instrument Serif italic).
+
 | Route | Page |
 |---|---|
 | `#/` | **Home** — only the opening drawing (click the name in the header to return) |
-| `#/search` | **Search** — typed query + Field / List of every work |
-| `#/material` · `#/conferences` · `#/publications` | the three research stages |
-| `#/hello` | **Hello** — bio, CV, contact (`#/about` still works) |
+| `#/hello` | **Hello** — bio and CV (education, affiliation, awards, conferences, exhibitions), contact |
+| `#/research` | **research** — Publications · Conferences & Awards · Exhibitions (material + ideation) |
+| `#/design` | **design** — Virtual Space (undergrad, graduation work) · Public Projects · UX/UI (graduate coursework) |
+| `#/research/<section>` · `#/design/<section>` | jump to a section (sticky sub-tabs on desktop) |
+| `#/search` | **Search** — typed query + Field / List of every work (linked from Home) |
+| `#/p/<id>` | a work's sheet, opened over the current page |
+
+Research and design pages lay their work out as a full-width, numbered card
+grid. Work without images (papers, talks, ideas) gets a text "page" card.
+Older addresses (`#/material`, `#/conferences`, `#/publications`, `#/about`)
+still land on the matching section.
 
 All on-page text is English; Korean appears only in code comments.
 | `#/p/<id>` | a work's sheet, opened over the current page |

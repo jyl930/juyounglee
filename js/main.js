@@ -32,7 +32,7 @@
     if (r() > 0.4) { const cx = 80 + r() * 240, cy = 60 + r() * 180, rad = 20 + r() * 60; out.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rad.toFixed(1)}" fill="none" stroke="#d3d3d3"/>`); }
     const y = 30 + r() * 240;
     out.push(`<line x1="0" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="#ff4a1c" stroke-opacity=".35" stroke-dasharray="6 4"/>`);
-    return `<div class="ph"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><defs><pattern id="h-${seed}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#d9d9d9"/></pattern></defs>${out.join("")}</svg><em>${esc(label)}</em></div>`;
+    return `<div class="ph"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><defs><pattern id="h-${seed}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#d9d9d9"/></pattern></defs>${out.join("")}</svg>${label ? `<em>${esc(label)}</em>` : ""}</div>`;
   }
 
   /* ── search ─────────────────────────────────────────── */
@@ -196,35 +196,54 @@
   });
   document.addEventListener("pointermove", e => { hov.style.left = e.clientX + 24 + "px"; hov.style.top = e.clientY - 85 + "px"; });
 
-  /* ── stage pages: 01 material & ideation · 02 conferences & awards · 03 publications ── */
-  const STAGES = S.stages, TALKS = window.TALKS || [], IDEAS = window.IDEAS || [];
-  $$("[data-strip]").forEach(el => {
-    el.innerHTML = STAGES.map(st => `<a href="${st.route}" class="${st.key === el.dataset.strip ? "on" : ""}"><span>${st.no}</span>${esc(st.label)}</a>`).join("");
-  });
-  $("#material-cards").innerHTML = items.filter(p => p.type === "material").map(p =>
-    `<a class="card" href="#/p/${p.id}">${drawing(p.id, p.no)}<b>${esc(p.title)}</b><small>${esc(p.venue)} · ${Math.floor(p.year)}</small></a>`).join("");
-  $("#ideas").innerHTML = IDEAS.map(d =>
-    `<div class="cv-row"><span class="mono">${d.year}</span><span><b>${esc(d.title)}</b><small>${esc(d.note)}</small></span></div>`).join("");
-  const kinds = ["All", ...new Set(TALKS.map(x => x.kind))];
-  $("#talk-filters").innerHTML = `<div class="filters">${kinds.map((k, i) => `<button data-kind="${k}" class="${i ? "" : "on"}">${k}</button>`).join("")}</div>`;
-  const renderTalks = kind => {
-    $("#talks").innerHTML = TALKS.filter(x => kind === "All" || x.kind === kind).sort((a, b) => b.year - a.year).map(x =>
-      `<div class="cv-row talk"><span class="mono">${Math.floor(x.year)}</span><span><b>${esc(x.title)}</b><small>${esc(x.venue)}</small></span><span class="mono kind">${esc(x.kind)}</span></div>`).join("");
+  /* ── wide card pages: hello · research · design ── */
+  const TALKS = (window.TALKS || []).slice().sort((a, b) => b.year - a.year), IDEAS = window.IDEAS || [];
+  const pad = n => String(n).padStart(2, "0");
+  // a text "page" stands in for a picture where the work has none (papers, talks, ideas)
+  const doc = (kicker, title) => `<div class="doc"><span class="mono">${esc(kicker)}</span><b>${esc(title)}</b><i></i><i></i><i></i></div>`;
+  const card = (i, title, thumb, meta, href) => {
+    const open = href ? `<a class="card" href="${href}">` : `<div class="card">`;
+    return `${open}<div class="card-top"><span>${esc(title)}</span><span class="mono">${pad(i + 1)}</span></div>${thumb}<div class="card-meta">${meta}</div>${href ? "</a>" : "</div>"}`;
   };
-  $$("#talk-filters button").forEach(b => b.addEventListener("click", () => {
-    $$("#talk-filters button").forEach(x => x.classList.toggle("on", x === b));
-    renderTalks(b.dataset.kind);
-  }));
-  renderTalks("All");
+  const workCard = (p, i) => card(i, p.title, p.type === "paper" ? doc(p.venue.split(" (")[0], p.title) : drawing(p.id, ""),
+    `${esc(p.type === "paper" ? p.role : p.venue)} · ${Math.floor(p.year)}`, `#/p/${p.id}`);
+  const section = (page, s, i, cards, count) => `
+    <section class="sec" id="sec-${s.id}">
+      <header class="sec-head">
+        <span class="mono">${pad(i + 1)}</span><h2 class="serif">${esc(s.title)}</h2><span class="mono">${pad(count)}</span>
+        ${s.lead ? `<p class="sec-lead">${esc(s.lead)}</p>` : ""}
+      </header>
+      <div class="grid">${cards}</div>
+    </section>`;
+  function renderPage(page, secs) {
+    $(`[data-subnav="${page}"]`).innerHTML = secs.map(s => `<a href="#/${page}/${s.id}" data-sec="${s.id}">${esc(s.title)}</a>`).join("");
+    $(`#${page}-secs`).innerHTML = secs.map((s, i) => { const list = s.cards(); return section(page, s, i, list.join(""), list.length); }).join("");
+  }
+  const byType = type => () => items.filter(p => p.type === type).map(workCard);
 
-  /* ── publications / hello ──────────────────────────── */
+  renderPage("research", [
+    { id: "publications", title: "Publications", lead: "Peer-reviewed journal papers (KCI).", cards: byType("paper") },
+    { id: "conferences", title: "Conferences & Awards", lead: "Presentations at international conferences and best paper presentation awards.",
+      cards: () => TALKS.map((x, i) => card(i, x.title, doc(x.kind, x.title), `${esc(x.venue)} · ${Math.floor(x.year)}`)) },
+    { id: "exhibitions", title: "Exhibitions", lead: "Material-led work shown at international fairs and exhibitions, with the ideation behind it.",
+      cards: () => { const m = items.filter(p => p.type === "material"); return [...m.map(workCard), ...IDEAS.map((d, i) => card(m.length + i, d.title, doc("Ideation", d.title), `${esc(d.note)} · ${d.year}`))]; } }
+  ]);
+  renderPage("design", [
+    { id: "virtual", title: "Virtual Space", lead: "Undergraduate virtual space projects, including the graduation work.", cards: byType("vspace") },
+    { id: "public", title: "Public Projects", lead: "Public design projects taken part in.", cards: byType("public") },
+    { id: "uxui", title: "UX/UI", lead: "Speculative UX/UI cases from graduate courses.", cards: byType("uxui") }
+  ]);
+  // a sub-tab for the section already in the address does not fire hashchange, so scroll by hand
+  $$(".sub-nav").forEach(nav => nav.addEventListener("click", e => {
+    const a = e.target.closest("a");
+    if (a && a.getAttribute("href") === location.hash) { e.preventDefault(); scrollToSection(a.dataset.sec); }
+  }));
+
   $("#research-lead").textContent = "Research on the role space plays where the digital meets the non-digital — looking at public and exhibition spaces through affordance, digital inclusion and digital wellbeing.";
-  $("#interests").innerHTML = S.interests.map(i => `<li>${esc(i)}</li>`).join("");
-  $("#pubs").innerHTML = items.filter(p => p.type === "paper").map(p =>
-    `<a class="pub" href="#/p/${p.id}"><span class="mono">${Math.floor(p.year)}</span><span><b>${esc(p.title)}</b><small>${esc(p.venue)} · ${esc(p.role)}</small></span></a>`).join("");
+  $("#interests").textContent = S.interests.join("  ·  ");
   $("#bio").textContent = S.bio;
-  $("#cv").innerHTML = S.cv.map(g => `<h3 class="mono label">${esc(g.group)}</h3>` + g.items.map(it =>
-    `<div class="cv-row"><span class="mono">${esc(it.when)}</span><span><b>${esc(it.what)}</b>${it.note ? `<small>${esc(it.note)}</small>` : ""}</span></div>`).join("")).join("");
+  $("#cv").innerHTML = S.cv.map(g => `<div class="cv-col"><h3 class="mono label">${esc(g.group)}</h3>` + g.items.map(it =>
+    `<div class="cv-row"><span class="mono">${esc(it.when)}</span><span><b>${esc(it.what)}</b>${it.note ? `<small>${esc(it.note)}</small>` : ""}</span></div>`).join("") + "</div>").join("");
   $("#contact").innerHTML = `<a href="mailto:${esc(S.email)}">${esc(S.email)}</a>` + S.links.map(l => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join("");
 
   /* ── project sheet ──────────────────────────────────── */
@@ -266,25 +285,35 @@
     if (e.key === "ArrowLeft") step(-1);
   });
 
-  /* ── routing ────────────────────────────────────────── */
-  let lastView = "#/";
+  /* ── routing ──────────────────────────────────────────
+        #/ home · #/search · #/hello · #/research[/section] · #/design[/section] · #/p/<id>
+        Older addresses still land in the right place.                          */
+  const ALIAS = { "#/about": "#/hello", "#/material": "#/research/exhibitions", "#/conferences": "#/research/conferences",
+                  "#/talks": "#/research/conferences", "#/publications": "#/research/publications" };
+  let lastView = "#/", lastPage = null;
   function go(h) { location.hash = h; }
+  function scrollToSection(id) {
+    const el = $(`#sec-${id}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
   function route() {
-    const h = location.hash || "#/";
+    const raw = location.hash || "#/", h = ALIAS[raw] || raw;
     const pm = h.match(/^#\/p\/(.+)$/);
     if (pm) {
       const p = items.find(x => x.id === pm[1]);
       if (p) return openSheet(p);
     }
     closeSheet();
-    const views = { "#/search": "search", "#/material": "material", "#/conferences": "talks", "#/talks": "talks", "#/publications": "publications", "#/research": "publications", "#/hello": "about", "#/about": "about" };
-    const view = views[h] || "home";
-    const changed = lastView !== h || document.body.dataset.view !== view;
-    lastView = h;
+    const [, base = "", sub] = h.split("/");
+    const view = ["search", "hello", "research", "design"].includes(base) ? base : "home";
+    const moved = h !== lastPage;            // closing a sheet returns to the same page without scrolling
+    lastView = raw; lastPage = h;
     document.body.dataset.view = view;
     $$(".view").forEach(v => (v.hidden = v.id !== `view-${view}`));
     $$("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === view));
-    if (changed) window.scrollTo(0, 0);
+    $$("[data-sec]").forEach(a => a.classList.toggle("on", a.dataset.sec === sub));
+    if (!moved) return;
+    if (sub) scrollToSection(sub); else window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", route);
 

@@ -438,12 +438,12 @@
   /* ── hit testing ── */
   function findHit(x, y) {
     if (hoverZone === 0) {
-      for (const d of ideas) { const [ix, iy] = ideaPos(d, t); if (Math.hypot(ix - x, iy - y) < 14) return { idea: d, route: "#/material", kicker: `Ideation · ${d.item.year}`, title: d.item.title, sub: d.item.note }; }
+      for (const d of ideas) { const [ix, iy] = ideaPos(d, t); if (Math.hypot(ix - x, iy - y) < 14) return { idea: d, route: STAGES[0].route, kicker: `Ideation · ${d.item.year}`, title: d.item.title, sub: d.item.note }; }
       let best = null, bd = 80 * sc;
       clusters.forEach(c => { const [cx, cy] = clusterCenter(c), dd = Math.hypot(cx - x, cy - y); if (dd < bd) { bd = dd; best = c; } });
       if (best) return best.item
         ? { cluster: best, route: `#/p/${best.item.id}`, kicker: `Material · ${Math.floor(best.item.year)}`, title: best.item.title, sub: best.item.venue }
-        : { cluster: best, route: "#/material" };
+        : { cluster: best, route: STAGES[0].route };
     }
     if (hoverZone === 1) {
       for (const n of nodes) { const [nx, ny] = map(n.u, n.v); if (Math.abs(nx - x) < 14 && Math.abs(ny - y) < 14 && n.item) return { node: n, route: STAGES[1].route, kicker: `${n.item.kind} · ${Math.floor(n.item.year)}`, title: n.item.title, sub: n.item.venue }; }
@@ -457,7 +457,7 @@
       });
       if (best) return best.item
         ? { layer: best, route: `#/p/${best.item.id}`, kicker: `Publication · ${Math.floor(best.item.year)}`, title: best.item.title, sub: best.item.venue }
-        : { layer: best, route: "#/publications" };
+        : { layer: best, route: STAGES[2].route };
     }
     return null;
   }

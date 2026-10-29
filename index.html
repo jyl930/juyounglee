@@ -7,7 +7,7 @@
   <meta name="description" content="Juyoung Lee (이주영) — spatial researcher and designer based in Seoul. Material, public, virtual space and UX/UI work, and research.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -17,12 +17,11 @@
     <a class="id" href="#/" data-link>
       <span>Juyoung Lee</span>
     </a>
+    <!-- the navigation reads as one sentence; only the three words are links -->
     <nav class="nav">
-      <a href="#/search" data-link data-nav="search">Search</a>
-      <a href="#/hello" data-link data-nav="about">Hello</a>
-      <a href="#/material" data-link data-nav="material">Material</a>
-      <a href="#/conferences" data-link data-nav="talks">Conferences</a>
-      <a href="#/publications" data-link data-nav="publications">Publications</a>
+      <a href="#/hello" data-link data-nav="hello">Hello</a>, I
+      <a href="#/research" data-link data-nav="research">research</a> and
+      <a href="#/design" data-link data-nav="design">design</a>
     </nav>
     <div class="meta mono">
       <span id="loc"></span>
@@ -92,56 +91,43 @@
     </section>
   </main>
 
-  <!-- 01 MATERIAL & IDEATION -->
-  <main id="view-material" class="view" hidden>
-    <div class="page">
-      <aside class="page-side mono"><div class="stage-strip" data-strip="material"></div></aside>
-      <div class="page-body">
-        <p class="lead">Questions begin with experiments that re-read materials — moving between properties you can touch and qualities that exist only on a screen.</p>
-        <h3 class="mono label">Experiments</h3>
-        <div class="cards" id="material-cards"></div>
-        <h3 class="mono label">Ideation</h3>
-        <div id="ideas"></div>
-      </div>
-    </div>
-  </main>
-
-  <!-- 02 CONFERENCES & AWARDS -->
-  <main id="view-talks" class="view" hidden>
-    <div class="page">
-      <aside class="page-side mono"><div class="stage-strip" data-strip="talks"></div></aside>
-      <div class="page-body">
-        <p class="lead">Questions narrowed down, presented at conferences, and recognised.</p>
-        <div class="tools mono talk-filters" id="talk-filters"></div>
-        <div id="talks"></div>
-      </div>
-    </div>
-  </main>
-
-  <!-- 03 PUBLICATIONS -->
-  <main id="view-publications" class="view" hidden>
-    <div class="page">
-      <aside class="page-side mono"><div class="stage-strip" data-strip="publications"></div></aside>
-      <div class="page-body">
-        <p class="lead" id="research-lead"></p>
-        <h3 class="mono label">Interests</h3>
-        <ol class="interests" id="interests"></ol>
-        <h3 class="mono label">Publications</h3>
-        <div id="pubs"></div>
-      </div>
-    </div>
-  </main>
-
-  <!-- HELLO (about) -->
-  <main id="view-about" class="view" hidden>
-    <div class="page">
-      <aside class="page-side mono">Hello</aside>
-      <div class="page-body">
+  <!-- HELLO ─ bio + CV -->
+  <main id="view-hello" class="view" hidden>
+    <div class="wide">
+      <header class="wide-head">
+        <h1 class="serif">Hello</h1>
         <p class="lead" id="bio"></p>
-        <div id="cv"></div>
-        <h3 class="mono label">Contact</h3>
+      </header>
+      <div class="cv-grid" id="cv"></div>
+      <section class="sec">
+        <header class="sec-head"><span class="mono">Contact</span></header>
         <p class="contact" id="contact"></p>
-      </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- RESEARCH ─ publications · conferences & awards · exhibitions -->
+  <main id="view-research" class="view" hidden>
+    <div class="wide">
+      <header class="wide-head">
+        <h1 class="serif">research</h1>
+        <p class="lead" id="research-lead"></p>
+        <p class="mono interests" id="interests"></p>
+      </header>
+      <nav class="sub-nav mono" data-subnav="research"></nav>
+      <div id="research-secs"></div>
+    </div>
+  </main>
+
+  <!-- DESIGN ─ virtual · public · UX/UI projects -->
+  <main id="view-design" class="view" hidden>
+    <div class="wide">
+      <header class="wide-head">
+        <h1 class="serif">design</h1>
+        <p class="lead">Design work from undergraduate studios to graduate courses — virtual spaces including the graduation project, public projects, and UX/UI explored as speculative cases.</p>
+      </header>
+      <nav class="sub-nav mono" data-subnav="design"></nav>
+      <div id="design-secs"></div>
     </div>
   </main>
 
