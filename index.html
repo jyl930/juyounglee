@@ -7,8 +7,7 @@
   <meta name="description" content="Juyoung Lee (이주영) — spatial researcher and designer based in Seoul. Material, public, virtual space and UX/UI work, and research.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&family=Inter:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-view="home">
@@ -17,17 +16,16 @@
     <a class="id" href="#/" data-link>
       <span>Juyoung Lee</span>
     </a>
+    <!-- the navigation reads as one sentence; only the three words are links,
+         and research / design open their sub-pages on hover -->
     <nav class="nav">
-      <a href="#/search" data-link data-nav="search">Search</a>
-      <a href="#/hello" data-link data-nav="about">Hello</a>
-      <a href="#/material" data-link data-nav="material">Material</a>
-      <a href="#/conferences" data-link data-nav="talks">Conferences</a>
-      <a href="#/publications" data-link data-nav="publications">Publications</a>
+      <span class="nav-item"><a href="#/hello" data-link data-nav="hello">Hello</a></span>, I
+      <span class="nav-item"><a href="#/research" data-link data-nav="research">research</a><span class="drop mono" data-drop="research"></span></span> and
+      <span class="nav-item"><a href="#/design" data-link data-nav="design">design</a><span class="drop mono" data-drop="design"></span></span>
     </nav>
-    <div class="meta mono">
-      <span id="loc"></span>
-      <span id="clock"></span>
-    </div>
+    <a class="search-link mono" href="#/search" data-nav="search">Search
+      <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="5" fill="none" stroke="currentColor" stroke-width="1.4"/><line x1="10.2" y1="10.2" x2="15" y2="15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </a>
   </header>
 
   <!-- HOME ─ the research sequence (opened from the name in the header) -->
@@ -64,14 +62,16 @@
     </section>
 
     <div class="tools mono">
-      <div class="filters" id="filters"></div>
       <div class="modes">
         <button data-mode="field" class="on">Field</button>
         <button data-mode="list">List</button>
       </div>
     </div>
 
-    <section class="field" id="field" aria-label="Projects plotted by year and scale">
+    <!-- the columns of the field are the sub-pages; each header is a tab that filters -->
+    <div class="tabs mono" id="filters"></div>
+
+    <section class="field" id="field" aria-label="Work plotted by category and year">
       <div class="axis-y mono" id="axis-y"></div>
       <div class="plane" id="plane">
         <div class="cross cross-x"></div>
@@ -80,7 +80,6 @@
         <div class="marks" id="marks"></div>
         <div class="tip" id="tip"></div>
       </div>
-      <div class="axis-x mono" id="axis-x"></div>
     </section>
 
     <section class="list" id="list" hidden>
@@ -92,56 +91,24 @@
     </section>
   </main>
 
-  <!-- 01 MATERIAL & IDEATION -->
-  <main id="view-material" class="view" hidden>
-    <div class="page">
-      <aside class="page-side mono"><div class="stage-strip" data-strip="material"></div></aside>
-      <div class="page-body">
-        <p class="lead">Questions begin with experiments that re-read materials — moving between properties you can touch and qualities that exist only on a screen.</p>
-        <h3 class="mono label">Experiments</h3>
-        <div class="cards" id="material-cards"></div>
-        <h3 class="mono label">Ideation</h3>
-        <div id="ideas"></div>
-      </div>
-    </div>
-  </main>
-
-  <!-- 02 CONFERENCES & AWARDS -->
-  <main id="view-talks" class="view" hidden>
-    <div class="page">
-      <aside class="page-side mono"><div class="stage-strip" data-strip="talks"></div></aside>
-      <div class="page-body">
-        <p class="lead">Questions narrowed down, presented at conferences, and recognised.</p>
-        <div class="tools mono talk-filters" id="talk-filters"></div>
-        <div id="talks"></div>
-      </div>
-    </div>
-  </main>
-
-  <!-- 03 PUBLICATIONS -->
-  <main id="view-publications" class="view" hidden>
-    <div class="page">
-      <aside class="page-side mono"><div class="stage-strip" data-strip="publications"></div></aside>
-      <div class="page-body">
-        <p class="lead" id="research-lead"></p>
-        <h3 class="mono label">Interests</h3>
-        <ol class="interests" id="interests"></ol>
-        <h3 class="mono label">Publications</h3>
-        <div id="pubs"></div>
-      </div>
-    </div>
-  </main>
-
-  <!-- HELLO (about) -->
-  <main id="view-about" class="view" hidden>
-    <div class="page">
-      <aside class="page-side mono">Hello</aside>
-      <div class="page-body">
-        <p class="lead" id="bio"></p>
-        <div id="cv"></div>
-        <h3 class="mono label">Contact</h3>
+  <!-- HELLO ─ bio + CV -->
+  <main id="view-hello" class="view" hidden>
+    <div class="wide">
+      <header class="wide-head"><p class="lead" id="bio"></p></header>
+      <div class="cv-grid" id="cv"></div>
+      <section class="sec">
+        <header class="sec-head"><span class="mono">Contact</span></header>
         <p class="contact" id="contact"></p>
-      </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- SUB-PAGE ─ one page per sub-item of research / design: intro text + cards -->
+  <main id="view-sub" class="view" hidden>
+    <div class="wide">
+      <nav class="sib mono" id="sib"></nav>
+      <header class="wide-head"><p class="lead" id="sub-lead"></p></header>
+      <div class="grid" id="sub-grid"></div>
     </div>
   </main>
 
@@ -161,7 +128,7 @@
 
   <footer class="foot mono">
     <span>© <span id="yr"></span> Juyoung Lee</span>
-    <span>Plotted by year × scale</span>
+    <span>Plotted by category × year</span>
   </footer>
 
   <script src="js/data.js"></script>

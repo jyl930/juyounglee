@@ -8,12 +8,7 @@
   const items = [...P].sort((a, b) => b.year - a.year);
   items.forEach((p, i) => (p.no = String(i + 1).padStart(2, "0")));
 
-  /* ── header: location + Seoul clock ────────────────── */
-  $("#loc").textContent = `${S.base} ${S.coords}`;
   $("#yr").textContent = new Date().getFullYear();
-  const clockFmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  const tick = () => ($("#clock").textContent = clockFmt.format(new Date()) + " KST");
-  tick(); setInterval(tick, 1000);
 
   /* ── drawn image placeholders (seeded, so each project keeps its drawing) ── */
   function rng(seed) {
@@ -32,8 +27,13 @@
     if (r() > 0.4) { const cx = 80 + r() * 240, cy = 60 + r() * 180, rad = 20 + r() * 60; out.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rad.toFixed(1)}" fill="none" stroke="#d3d3d3"/>`); }
     const y = 30 + r() * 240;
     out.push(`<line x1="0" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="#ff4a1c" stroke-opacity=".35" stroke-dasharray="6 4"/>`);
-    return `<div class="ph"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><defs><pattern id="h-${seed}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#d9d9d9"/></pattern></defs>${out.join("")}</svg><em>${esc(label)}</em></div>`;
+    return `<div class="ph"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><defs><pattern id="h-${seed}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#d9d9d9"/></pattern></defs>${out.join("")}</svg>${label ? `<em>${esc(label)}</em>` : ""}</div>`;
   }
+
+  // a text "page" stands in for a picture where the work has none (papers, talks, ideas)
+  const doc = (kicker, title) => `<div class="doc"><span class="mono">${esc(kicker)}</span><b>${esc(title)}</b><i></i><i></i><i></i></div>`;
+  const textual = p => p.type === "paper" || p.type === "conference";
+  const thumb = p => textual(p) ? doc(p.award || p.venue.split(" (")[0], p.title) : drawing(p.id, "");
 
   /* ── search ─────────────────────────────────────────── */
   let activeType = "all", query = "";
@@ -87,12 +87,14 @@
     input.focus();
   });
 
-  /* ── filters / modes ────────────────────────────────── */
-  $("#filters").innerHTML = `<button data-type="all" class="on">All</button>` +
-    Object.entries(T).map(([k, v]) => `<button data-type="${k}"><span class="mk" data-type="${k}" style="position:static;display:inline-grid;width:auto;height:auto;margin:0 6px 0 0"><i></i></span>${v.label}</button>`).join("");
+  /* ── tabs: one per category; they are also the columns of the field ── */
+  const COLS = Object.keys(T);
+  const count = k => items.filter(p => p.type === k).length;
+  $("#filters").innerHTML = `<button data-type="all" class="on">All <em>${items.length}</em></button>` +
+    COLS.map(k => `<button data-type="${k}"><span class="mk" data-type="${k}"><i></i></span>${T[k].label} <em>${count(k)}</em></button>`).join("");
   $$("#filters button").forEach(b => b.addEventListener("click", () => {
-    activeType = b.dataset.type;
-    $$("#filters button").forEach(x => x.classList.toggle("on", x === b));
+    activeType = activeType === b.dataset.type ? "all" : b.dataset.type;   // a second click returns to All
+    $$("#filters button").forEach(x => x.classList.toggle("on", x.dataset.type === activeType));
     apply();
   }));
 
@@ -108,38 +110,28 @@
     try { localStorage.setItem("jy-mode", mode); } catch (_) {}
   }
 
-  /* ── field: year × scale ────────────────────────────── */
-  const tiers = [
-    { name: "Material", unit: "10⁻³ m" },
-    { name: "Object",   unit: "10⁰ m" },
-    { name: "Interior", unit: "10¹ m" },
-    { name: "Public",   unit: "10² m" },
-    { name: "Virtual",  unit: "∞" }
-  ];
+  /* ── field: category (x, the tabs) × year (y, newest on top) ── */
   const years = items.map(p => p.year);
-  const x0 = Math.floor(Math.min(...years)) - 0.4, x1 = Math.ceil(Math.max(...years)) + 0.4;
-  const px = y => ((y - x0) / (x1 - x0)) * 100;
-  const py = s => (1 - s / tiers.length) * 100;
+  const Y0 = Math.floor(Math.min(...years)), Y1 = Math.floor(Math.max(...years)) + 1;
+  const pyr = y => ((Y1 - y) / (Y1 - Y0)) * 100;
+  // spread each item across its column with a stable jitter, so the same work always sits in the same place
+  items.forEach(p => { p._x = ((COLS.indexOf(p.type) + 0.14 + rng(p.id)() * 0.72) / COLS.length) * 100; p._y = pyr(p.year); });
 
   const plane = $("#plane"), marks = $("#marks");
   let gridHTML = "";
-  for (let y = Math.ceil(x0); y <= x1; y++) gridHTML += `<div class="grid-v" style="left:${px(y)}%"></div>`;
-  tiers.forEach((t, i) => (gridHTML += `<div class="grid-h${i === 4 ? " dashed" : ""}" style="top:${py(i)}%"></div>`));
-  gridHTML += `<div class="band" style="top:0;height:${py(4)}%"></div>`;
+  for (let c = 1; c < COLS.length; c++) gridHTML += `<div class="grid-v" style="left:${(c / COLS.length) * 100}%"></div>`;
+  for (let y = Y0 + 1; y < Y1; y++) gridHTML += `<div class="grid-h" style="top:${pyr(y)}%"></div>`;
   plane.insertAdjacentHTML("afterbegin", gridHTML);
-
-  $("#axis-x").innerHTML = Array.from({ length: Math.floor(x1) - Math.ceil(x0) + 1 }, (_, i) => Math.ceil(x0) + i)
-    .filter(y => y + 0.5 < x1).map(y => `<span style="left:${px(y + 0.5)}%">${y}</span>`).join("");
-  $("#axis-y").innerHTML = tiers.map((t, i) => `<span style="top:${py(i + 0.5)}%">${t.name}<em>${t.unit}</em></span>`).join("");
+  $("#axis-y").innerHTML = Array.from({ length: Y1 - Y0 }, (_, i) => Y0 + i).map(y => `<span style="top:${pyr(y + 0.5)}%">${y}</span>`).join("");
 
   items.forEach((p, i) => {
     const el = document.createElement("a");
     el.className = "mk pre"; el.href = `#/p/${p.id}`; el.dataset.type = p.type;
-    el.style.left = px(p.year) + "%"; el.style.top = py(p.scale) + "%";
+    el.style.left = p._x + "%"; el.style.top = p._y + "%";
     el.innerHTML = `<i></i><span>${esc(p.title)}</span>`;
     el.setAttribute("aria-label", `${p.title} — ${T[p.type].label}, ${Math.floor(p.year)}`);
     marks.appendChild(el); p._mk = el;
-    setTimeout(() => el.classList.remove("pre"), 300 + i * 70);
+    setTimeout(() => el.classList.remove("pre"), 300 + i * 50);
   });
 
   const tip = $("#tip"), readout = $("#readout"), cx = $(".cross-x"), cy = $(".cross-y");
@@ -150,8 +142,8 @@
     near = p;
     if (!p) return tip.classList.remove("on");
     p._mk.classList.add("near");
-    tip.innerHTML = `${drawing(p.id, T[p.type].label)}<b>${esc(p.title)}</b><small>${esc(p.venue)} · ${Math.floor(p.year)}</small>`;
-    const mx = (px(p.year) / 100) * rect.width, my = (py(p.scale) / 100) * rect.height;
+    tip.innerHTML = `${thumb(p)}<b>${esc(p.title)}</b><small>${esc(p.venue)} · ${Math.floor(p.year)}</small>`;
+    const mx = (p._x / 100) * rect.width, my = (p._y / 100) * rect.height;
     tip.style.left = Math.min(mx + 20, rect.width - 232) + "px";
     tip.style.top = (my > rect.height - 200 ? my - 200 : my + 16) + "px";
     tip.classList.add("on");
@@ -160,15 +152,14 @@
     const r = plane.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
     plane.classList.add("live");
     cx.style.top = y + "px"; cy.style.left = x + "px";
-    const yr = x0 + (x / r.width) * (x1 - x0), sc = (1 - y / r.height) * tiers.length;
-    const tier = tiers[Math.min(tiers.length - 1, Math.max(0, Math.floor(sc)))];
-    readout.textContent = `${Math.floor(yr)}.${String(Math.floor((yr % 1) * 12) + 1).padStart(2, "0")}  ·  ${tier.name} ${tier.unit}`;
+    const yr = Y1 - (y / r.height) * (Y1 - Y0), col = COLS[Math.min(COLS.length - 1, Math.max(0, Math.floor((x / r.width) * COLS.length)))];
+    readout.textContent = `${T[col].label}  ·  ${Math.floor(yr)}.${String(Math.floor((yr % 1) * 12) + 1).padStart(2, "0")}`;
     readout.style.left = Math.min(x + 10, r.width - 170) + "px";
     readout.style.top = r.height - 18 + "px";
     let best = null, bd = 56;
     items.forEach(p => {
       if (p._mk.classList.contains("dim")) return;
-      const d = Math.hypot((px(p.year) / 100) * r.width - x, (py(p.scale) / 100) * r.height - y);
+      const d = Math.hypot((p._x / 100) * r.width - x, (p._y / 100) * r.height - y);
       if (d < bd) { bd = d; best = p; }
     });
     setNear(best, r);
@@ -190,41 +181,38 @@
     const r = document.createElement("a");
     r.className = "row"; r.href = `#/p/${p.id}`;
     r.innerHTML = `<span class="mono">${p.no}</span><span class="t"><b>${esc(p.title)}</b></span><span>${T[p.type].label}</span><span>${esc(p.venue)}</span><span class="mono">${Math.floor(p.year)}</span>`;
-    r.addEventListener("pointerenter", () => { hov.innerHTML = drawing(p.id, p.no); hov.classList.add("on"); });
+    r.addEventListener("pointerenter", () => { hov.innerHTML = thumb(p); hov.classList.add("on"); });
     r.addEventListener("pointerleave", () => hov.classList.remove("on"));
     rows.appendChild(r); p._row = r;
   });
   document.addEventListener("pointermove", e => { hov.style.left = e.clientX + 24 + "px"; hov.style.top = e.clientY - 85 + "px"; });
 
-  /* ── stage pages: 01 material & ideation · 02 conferences & awards · 03 publications ── */
-  const STAGES = S.stages, TALKS = window.TALKS || [], IDEAS = window.IDEAS || [];
-  $$("[data-strip]").forEach(el => {
-    el.innerHTML = STAGES.map(st => `<a href="${st.route}" class="${st.key === el.dataset.strip ? "on" : ""}"><span>${st.no}</span>${esc(st.label)}</a>`).join("");
-  });
-  $("#material-cards").innerHTML = items.filter(p => p.type === "material").map(p =>
-    `<a class="card" href="#/p/${p.id}">${drawing(p.id, p.no)}<b>${esc(p.title)}</b><small>${esc(p.venue)} · ${Math.floor(p.year)}</small></a>`).join("");
-  $("#ideas").innerHTML = IDEAS.map(d =>
-    `<div class="cv-row"><span class="mono">${d.year}</span><span><b>${esc(d.title)}</b><small>${esc(d.note)}</small></span></div>`).join("");
-  const kinds = ["All", ...new Set(TALKS.map(x => x.kind))];
-  $("#talk-filters").innerHTML = `<div class="filters">${kinds.map((k, i) => `<button data-kind="${k}" class="${i ? "" : "on"}">${k}</button>`).join("")}</div>`;
-  const renderTalks = kind => {
-    $("#talks").innerHTML = TALKS.filter(x => kind === "All" || x.kind === kind).sort((a, b) => b.year - a.year).map(x =>
-      `<div class="cv-row talk"><span class="mono">${Math.floor(x.year)}</span><span><b>${esc(x.title)}</b><small>${esc(x.venue)}</small></span><span class="mono kind">${esc(x.kind)}</span></div>`).join("");
+  /* ── sub-pages: one per item under research / design — intro text + cards ── */
+  const IDEAS = window.IDEAS || [], PAGES = S.pages;
+  const pad = n => String(n).padStart(2, "0");
+  const card = (i, title, art, meta, href, note) => {
+    const open = href ? `<a class="card" href="${href}">` : `<div class="card">`;
+    return `${open}<div class="card-top"><span>${esc(title)}</span><span class="mono">${pad(i + 1)}</span></div>${art}` +
+      `<div class="card-meta">${meta}</div>${note ? `<div class="card-note">${esc(note)}</div>` : ""}${href ? "</a>" : "</div>"}`;
   };
-  $$("#talk-filters button").forEach(b => b.addEventListener("click", () => {
-    $$("#talk-filters button").forEach(x => x.classList.toggle("on", x === b));
-    renderTalks(b.dataset.kind);
-  }));
-  renderTalks("All");
+  const workCard = (p, i) => card(i, p.title, thumb(p),
+    `${esc(p.type === "paper" ? p.role : p.venue)} · ${Math.floor(p.year)}`, `#/p/${p.id}`, p.award);
+  // hover menus under "research" and "design"
+  Object.entries(PAGES).forEach(([group, list]) => {
+    $(`[data-drop="${group}"]`).innerHTML = list.map(pg => `<a href="#/${group}/${pg.id}" data-sub="${group}/${pg.id}">${esc(pg.label)}</a>`).join("");
+  });
+  function renderSub(group, pg) {
+    $("#sib").innerHTML = PAGES[group].map(x => `<a href="#/${group}/${x.id}" class="${x === pg ? "on" : ""}">${esc(x.label)}</a>`).join("");
+    $("#sub-lead").textContent = pg.lead;
+    const work = items.filter(p => p.type === pg.type);
+    const cards = work.map(workCard);
+    if (pg.type === "material") IDEAS.forEach((d, i) => cards.push(card(work.length + i, d.title, doc("Ideation", d.title), `${esc(d.note)} · ${d.year}`)));
+    $("#sub-grid").innerHTML = cards.join("");
+  }
 
-  /* ── publications / hello ──────────────────────────── */
-  $("#research-lead").textContent = "Research on the role space plays where the digital meets the non-digital — looking at public and exhibition spaces through affordance, digital inclusion and digital wellbeing.";
-  $("#interests").innerHTML = S.interests.map(i => `<li>${esc(i)}</li>`).join("");
-  $("#pubs").innerHTML = items.filter(p => p.type === "paper").map(p =>
-    `<a class="pub" href="#/p/${p.id}"><span class="mono">${Math.floor(p.year)}</span><span><b>${esc(p.title)}</b><small>${esc(p.venue)} · ${esc(p.role)}</small></span></a>`).join("");
   $("#bio").textContent = S.bio;
-  $("#cv").innerHTML = S.cv.map(g => `<h3 class="mono label">${esc(g.group)}</h3>` + g.items.map(it =>
-    `<div class="cv-row"><span class="mono">${esc(it.when)}</span><span><b>${esc(it.what)}</b>${it.note ? `<small>${esc(it.note)}</small>` : ""}</span></div>`).join("")).join("");
+  $("#cv").innerHTML = S.cv.map(g => `<div class="cv-col"><h3 class="mono label">${esc(g.group)}</h3>` + g.items.map(it =>
+    `<div class="cv-row"><span class="mono">${esc(it.when)}</span><span><b>${esc(it.what)}</b>${it.note ? `<small>${esc(it.note)}</small>` : ""}</span></div>`).join("") + "</div>").join("");
   $("#contact").innerHTML = `<a href="mailto:${esc(S.email)}">${esc(S.email)}</a>` + S.links.map(l => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join("");
 
   /* ── project sheet ──────────────────────────────────── */
@@ -232,8 +220,7 @@
   function openSheet(p) {
     current = p;
     $("#s-no").textContent = `${p.no} / ${String(items.length).padStart(2, "0")} — ${T[p.type].label}`;
-    const n = p.type === "paper" ? 1 : 5;
-    const gal = Array.from({ length: n }, (_, i) => drawing(p.id + i, `IMAGE ${String(i + 1).padStart(2, "0")}`).replace('class="ph"', `class="ph${i % 3 === 0 ? " wide" : ""}"`)).join("");
+    const gal = textual(p) ? "" : Array.from({ length: 5 }, (_, i) => drawing(p.id + i, `IMAGE ${String(i + 1).padStart(2, "0")}`).replace('class="ph"', `class="ph${i % 3 === 0 ? " wide" : ""}"`)).join("");
     $("#sheet-body").innerHTML = `
       <h1>${esc(p.title)}</h1>
       <h2>${esc(p.venue)}</h2>
@@ -241,9 +228,10 @@
         <div><span class="mono">Year</span>${Math.floor(p.year)}</div>
         <div><span class="mono">Type</span>${esc(T[p.type].label)}</div>
         <div><span class="mono">Role</span>${esc(p.role)}</div>
-        <div><span class="mono">${p.type === "paper" ? "Venue" : "Medium"}</span>${esc(p.type === "paper" ? p.venue : p.material || "—")}</div>
+        <div><span class="mono">${textual(p) ? "Venue" : "Medium"}</span>${esc(textual(p) ? p.venue : p.material || "—")}</div>
       </div>
-      <p class="desc">${esc(p.summary)}${p.type !== "paper" ? `<br><span style="color:var(--mid)">${esc(p.venue)}</span>` : ""}</p>
+      ${p.award ? `<p class="award mono">${esc(p.award)}</p>` : ""}
+      <p class="desc">${esc(p.summary)}${textual(p) ? "" : `<br><span style="color:var(--mid)">${esc(p.venue)}</span>`}</p>
       <div class="gallery">${gal}</div>`;
     $("#sheet-body").scrollTop = 0;
     document.body.classList.add("sheet-open");
@@ -266,25 +254,35 @@
     if (e.key === "ArrowLeft") step(-1);
   });
 
-  /* ── routing ────────────────────────────────────────── */
-  let lastView = "#/";
+  /* ── routing ──────────────────────────────────────────
+        #/ home · #/search · #/hello · #/research/<page> · #/design/<page> · #/p/<id>
+        Older addresses still land in the right place.                          */
+  const ALIAS = { "#/about": "#/hello", "#/material": "#/design/exhibition", "#/research/exhibitions": "#/design/exhibition",
+                  "#/conferences": "#/research/conferences", "#/talks": "#/research/conferences", "#/publications": "#/research/publications" };
+  let lastView = "#/", lastPage = null;
   function go(h) { location.hash = h; }
   function route() {
-    const h = location.hash || "#/";
+    const raw = location.hash || "#/", h = ALIAS[raw] || raw;
     const pm = h.match(/^#\/p\/(.+)$/);
     if (pm) {
       const p = items.find(x => x.id === pm[1]);
       if (p) return openSheet(p);
     }
     closeSheet();
-    const views = { "#/search": "search", "#/material": "material", "#/conferences": "talks", "#/talks": "talks", "#/publications": "publications", "#/research": "publications", "#/hello": "about", "#/about": "about" };
-    const view = views[h] || "home";
-    const changed = lastView !== h || document.body.dataset.view !== view;
-    lastView = h;
+    const [, base = "", sub] = h.split("/");
+    let view = ["search", "hello"].includes(base) ? base : "home", subKey = "";
+    if (PAGES[base]) {                         // research / design: show the sub-page (the first one by default)
+      const pg = PAGES[base].find(x => x.id === sub) || PAGES[base][0];
+      view = "sub"; subKey = `${base}/${pg.id}`;
+      renderSub(base, pg);
+    }
+    const moved = h !== lastPage;              // closing a sheet returns to the same page without scrolling
+    lastView = raw; lastPage = h;
     document.body.dataset.view = view;
     $$(".view").forEach(v => (v.hidden = v.id !== `view-${view}`));
-    $$("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === view));
-    if (changed) window.scrollTo(0, 0);
+    $$("[data-nav]").forEach(a => a.classList.toggle("on", a.dataset.nav === (view === "sub" ? base : view)));
+    $$("[data-sub]").forEach(a => a.classList.toggle("on", a.dataset.sub === subKey));
+    if (moved) window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", route);
 

@@ -24,7 +24,7 @@
   const tipEl = document.getElementById("intro-tip"), linksEl = document.getElementById("stage-links");
   const SITE = window.SITE, STAGES = SITE.stages;
   const PROJ = window.PROJECTS || [], IDEAS = window.IDEAS || [];
-  const TALKS = (window.TALKS || []).slice().sort((a, b) => a.year - b.year);
+  const TALKS = PROJ.filter(p => p.type === "conference").sort((a, b) => a.year - b.year);
   const MATS = PROJ.filter(p => p.type === "material").sort((a, b) => b.year - a.year);
   const PAPERS = PROJ.filter(p => p.type === "paper").sort((a, b) => a.year - b.year);
   const INK = "#111", DIM = "#c9c9c9", LINE = "#d4d4d4", MID = "#8c8c8c", ACCENT = "#ff4a1c";
@@ -178,6 +178,7 @@
     const s = cam.D / (cam.D + Z);
     return [cam.c[0] + X * s * cam.f, cam.c[1] - Y * s * cam.f, s];
   }
+  const DEPTH_SIZE = 1.5;
   function layerGeometry() {
     const [ax, ay] = map(ZONES[2][0], -0.5), [bx, by] = map(ZONES[2][1], 0.5);
     const bw = Math.abs(bx - ax), bh = Math.abs(by - ay);
@@ -187,7 +188,8 @@
       const [x, y] = proj3(L.dx + a * RX * 0.8, L.y, b * RZ * 0.8, yaw, 0.3);
       x0 = Math.min(x0, x - cam.c[0]); x1 = Math.max(x1, x - cam.c[0]); y0 = Math.min(y0, y - cam.c[1]); y1 = Math.max(y1, y - cam.c[1]);
     })));
-    cam.f = Math.min((bw * 0.9) / (x1 - x0), (bh * 0.8) / (y1 - y0));
+    // DEPTH_SIZE > 1 lets the field spill past its zone (the bounds above are generous)
+    cam.f = DEPTH_SIZE * Math.min((bw * 0.9) / (x1 - x0), (bh * 0.8) / (y1 - y0));
   }
   const layerPt = (L, p, view, t) => proj3(L.dx + p.x * RX, L.y + (still ? 0 : Math.sin(t * 0.5 + p.ph) * 0.03), p.z * RZ, view.yaw, view.pitch);
 
@@ -338,7 +340,7 @@
         const kn = prog(t, T2 + 0.3 + (n.u - 0.4) * 4 + i * 0.02, 0.6);
         if (kn <= 0) return;
         const [x, y] = map(n.u, n.v), hot = hit && hit.node === n;
-        const kind = n.item ? n.item.kind : "Presentation";
+        const kind = n.item && n.item.award ? "Award" : "Presentation";
         // cell body: a soft blob with a few lobes that breathe
         const r = (kind === "Award" ? 8 : 6.5) * kn + (hot ? 1.5 : 0);
         g.fillStyle = hot ? ACCENT : on(1) ? INK : DIM; g.beginPath(); dot(g, x, y, r);
@@ -347,10 +349,9 @@
           dot(g, x + Math.cos(a) * r * 0.55, y + Math.sin(a) * r * 0.55, r * 0.55);
         }
         g.fill();
-        // kind, as a small white mark inside: □ presentation · ◇ conference · solid = award
+        // kind, as a small white mark inside: □ presentation · solid = award
         f.fillStyle = "#fff"; f.beginPath();
         if (kind === "Presentation") f.rect(x - 1.6, y - 1.6, 3.2, 3.2);
-        if (kind === "Conference") { f.moveTo(x, y - 2.4); f.lineTo(x + 2.4, y); f.lineTo(x, y + 2.4); f.lineTo(x - 2.4, y); f.closePath(); }
         f.fill();
         if (n.item && hz === 1) { f.font = '9px "IBM Plex Mono", ui-monospace, monospace'; f.fillStyle = MID; f.textAlign = "left"; f.fillText(String(Math.floor(n.item.year)), x + 10, y - 10); }
       });
@@ -374,7 +375,7 @@
         const fog = clamp((sd - 0.7) / 0.55);           // farther = fainter
         f.globalAlpha = appear * (0.15 + 0.85 * fog);
         f.fillStyle = p.lit ? (hot ? ACCENT : on(2) ? INK : DIM) : hot ? "#9a9a9a" : "#cfcfcf";
-        f.beginPath(); dot(f, x, y, (p.lit ? 2 : 1.1) * sd); f.fill();
+        f.beginPath(); dot(f, x, y, (p.lit ? 2.4 : 1.3) * sd); f.fill();
       });
     });
     f.globalAlpha = 1;
@@ -436,15 +437,15 @@
   /* ── hit testing ── */
   function findHit(x, y) {
     if (hoverZone === 0) {
-      for (const d of ideas) { const [ix, iy] = ideaPos(d, t); if (Math.hypot(ix - x, iy - y) < 14) return { idea: d, route: "#/material", kicker: `Ideation · ${d.item.year}`, title: d.item.title, sub: d.item.note }; }
+      for (const d of ideas) { const [ix, iy] = ideaPos(d, t); if (Math.hypot(ix - x, iy - y) < 14) return { idea: d, route: STAGES[0].route, kicker: `Ideation · ${d.item.year}`, title: d.item.title, sub: d.item.note }; }
       let best = null, bd = 80 * sc;
       clusters.forEach(c => { const [cx, cy] = clusterCenter(c), dd = Math.hypot(cx - x, cy - y); if (dd < bd) { bd = dd; best = c; } });
       if (best) return best.item
         ? { cluster: best, route: `#/p/${best.item.id}`, kicker: `Material · ${Math.floor(best.item.year)}`, title: best.item.title, sub: best.item.venue }
-        : { cluster: best, route: "#/material" };
+        : { cluster: best, route: STAGES[0].route };
     }
     if (hoverZone === 1) {
-      for (const n of nodes) { const [nx, ny] = map(n.u, n.v); if (Math.abs(nx - x) < 14 && Math.abs(ny - y) < 14 && n.item) return { node: n, route: STAGES[1].route, kicker: `${n.item.kind} · ${Math.floor(n.item.year)}`, title: n.item.title, sub: n.item.venue }; }
+      for (const n of nodes) { const [nx, ny] = map(n.u, n.v); if (Math.abs(nx - x) < 14 && Math.abs(ny - y) < 14 && n.item) return { node: n, route: STAGES[1].route, kicker: `${n.item.award || "Presentation"} · ${Math.floor(n.item.year)}`, title: n.item.title, sub: n.item.venue }; }
     }
     if (hoverZone === 2) {
       let best = null, bd = 1;
@@ -455,7 +456,7 @@
       });
       if (best) return best.item
         ? { layer: best, route: `#/p/${best.item.id}`, kicker: `Publication · ${Math.floor(best.item.year)}`, title: best.item.title, sub: best.item.venue }
-        : { layer: best, route: "#/publications" };
+        : { layer: best, route: STAGES[2].route };
     }
     return null;
   }
