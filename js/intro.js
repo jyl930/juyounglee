@@ -6,8 +6,8 @@
  *                            fibres; loose ideas drift between them.
  *   02 Presentations/Awards  crossing into the digital, particles become
  *                            pixels and travel a narrowing network whose
- *                            nodes are the talks — organic, neuron-like fibres
- *                            by default, or tidy S-curves (?net=curves).
+ *                            nodes are the talks, joined by organic,
+ *                            neuron-like fibres.
  *   03 Publications          pixels drift into a field of depth — soft, edgeless
  *                            clouds of points, one per paper, seen in
  *                            perspective — a sense of space rather than a model.
@@ -84,13 +84,10 @@
     return map(0.05 + 0.27 * (0.5 + 0.5 * Math.sin(s * d.sp + d.ph)), -0.38 + 0.76 * (0.5 + 0.5 * Math.sin(s * d.sp * 1.7 + d.ph * 2.3)));
   }
 
-  /* ── 02: the network; its nodes are the talks.
-        "neuron" (default): nodes scattered in a narrowing envelope, joined by
-                  organic, slightly swaying fibres that thicken into cell bodies;
-                  entry fibres reach back into the material clusters.
-        "curves": the same graph in tidy columns of smooth S-curves.
-        Both are one graph: entry fibres → nodes → exit fibres, all curves. ── */
-  let NET = new URLSearchParams(location.search).get("net") === "curves" ? "curves" : "neuron";
+  /* ── 02: the network; its nodes are the talks — scattered in a narrowing
+        envelope like cell bodies, joined by organic, slightly swaying fibres
+        that thicken where they meet them. Entry fibres reach back into the
+        material clusters: entry fibres → nodes → exit fibres, all curves. ── */
   let nodes = [], edges = [], entries = [], final = null;
   function addEdge(p, q, kind, from, to, o = {}) {
     const e = { p, q, kind, from, to, k1: 0.5, k2: 0.5, b1: 0, b2: 0, amp: 0, ph: rnd() * 7, pts: [], len: 1, ...o };
@@ -103,19 +100,7 @@
     const T = Math.max(3, TALKS.length);
     nodes = []; edges = []; entries = [];
     const node = (u, v, i) => ({ u, v, item: TALKS[i] || null, out: [], ph: rnd() * 7 });
-    if (NET === "curves") {
-      const nB = Math.max(1, Math.round((T - 1) / 3)), nA = T - 1 - nB;
-      const col = (n, u, spread, off) => Array.from({ length: n }, (_, i) => node(u, n === 1 ? 0 : -spread + (2 * spread * i) / (n - 1), off + i));
-      const A = col(nA, 0.43, 0.3, 0), B = col(nB, 0.52, 0.15, nA), C = col(1, 0.6, 0, nA + nB);
-      nodes = [...A, ...B, ...C];
-      const toB = i => B[nB === 1 ? 0 : Math.round((i * (nB - 1)) / Math.max(1, nA - 1))];
-      A.forEach((a, i) => { addEdge([a.u, a.v], [toB(i).u, toB(i).v], "link", a, toB(i)); addEdge([0.3, a.v * 0.55], [a.u, a.v], "entry", null, a); });
-      B.forEach(b => addEdge([b.u, b.v], [C[0].u, C[0].v], "link", b, C[0]));
-      final = C[0];
-      addEdge([final.u, final.v], [0.675, 0], "exit", final, null);
-      return;
-    }
-    // neuron: older talks upstream and spread wide, newer ones downstream and close together
+    // older talks upstream and spread wide, newer ones downstream and close together
     for (let i = 0; i < T; i++) {
       const r = i / (T - 1), env = 0.3 * (1 - r) + 0.03;
       let n, tries = 0;
@@ -310,13 +295,13 @@
     f.globalAlpha = 1;
 
     /* 02 — network */
-    const k2 = prog(t, T2, 1.6), neuron = NET === "neuron";
+    const k2 = prog(t, T2, 1.6);
     edges.forEach(e => { e.pts = curvePts(e, t); e.len = pathLen(e.pts); });
     if (k2 > 0) {
       edges.forEach(e => {
         const reveal = clamp(k2 * 1.25 - (e.kind === "exit" ? 0.25 : e.kind === "syn" ? 0.2 : 0)), pts = e.pts;
         if (reveal <= 0) return;
-        f.lineWidth = neuron ? 0.8 : 1;
+        f.lineWidth = 0.8;
         f.strokeStyle = e.kind === "syn" ? (on(1) ? "#d6d6d6" : "#ececec") : on(1) ? "#b0b0b0" : "#e2e2e2";
         let left = e.len * reveal;
         f.beginPath(); f.moveTo(pts[0][0], pts[0][1]);
@@ -325,8 +310,8 @@
           f.lineTo(lerp(pts[i - 1][0], pts[i][0], q), lerp(pts[i - 1][1], pts[i][1], q)); left -= l;
         }
         f.stroke();
-        // neuron: fibres thicken where they meet a cell body (goo turns the taper into flesh)
-        if (neuron && e.kind !== "syn" && reveal >= 1) {
+        // fibres thicken where they meet a cell body (goo turns the taper into flesh)
+        if (e.kind !== "syn" && reveal >= 1) {
           g.fillStyle = on(1) ? INK : DIM; g.beginPath();
           const n = pts.length - 1, m = 7;
           for (let j = 0; j < m; j++) {
@@ -342,29 +327,19 @@
         if (kn <= 0) return;
         const [x, y] = map(n.u, n.v), hot = hit && hit.node === n;
         const kind = n.item ? n.item.kind : "Presentation";
-        if (neuron) {
-          // cell body: a soft blob with a few lobes that breathe
-          const r = (kind === "Award" ? 8 : 6.5) * kn + (hot ? 1.5 : 0);
-          g.fillStyle = hot ? ACCENT : on(1) ? INK : DIM; g.beginPath(); dot(g, x, y, r);
-          for (let j = 0; j < 3; j++) {
-            const a = n.ph + j * 2.1 + (still ? 0 : Math.sin(t * 0.8 + n.ph + j) * 0.4);
-            dot(g, x + Math.cos(a) * r * 0.55, y + Math.sin(a) * r * 0.55, r * 0.55);
-          }
-          g.fill();
-          // kind, as a small white mark inside: □ presentation · ◇ conference · solid = award
-          f.fillStyle = "#fff"; f.beginPath();
-          if (kind === "Presentation") f.rect(x - 1.6, y - 1.6, 3.2, 3.2);
-          if (kind === "Conference") { f.moveTo(x, y - 2.4); f.lineTo(x + 2.4, y); f.lineTo(x, y + 2.4); f.lineTo(x - 2.4, y); f.closePath(); }
-          f.fill();
-        } else {
-          const s = (hot ? 9 : 6) * kn;
-          f.strokeStyle = hot ? ACCENT : on(1) ? INK : DIM; f.lineWidth = 1;
-          f.beginPath();
-          if (kind === "Conference") { f.moveTo(x, y - s * 0.7); f.lineTo(x + s * 0.7, y); f.lineTo(x, y + s * 0.7); f.lineTo(x - s * 0.7, y); f.closePath(); }
-          else f.rect(x - s / 2, y - s / 2, s, s);
-          f.fillStyle = "#fff"; f.fill(); f.stroke();
-          if (kind === "Award") { f.fillStyle = f.strokeStyle; f.fillRect(x - s / 2, y - s / 2, s, s); }
+        // cell body: a soft blob with a few lobes that breathe
+        const r = (kind === "Award" ? 8 : 6.5) * kn + (hot ? 1.5 : 0);
+        g.fillStyle = hot ? ACCENT : on(1) ? INK : DIM; g.beginPath(); dot(g, x, y, r);
+        for (let j = 0; j < 3; j++) {
+          const a = n.ph + j * 2.1 + (still ? 0 : Math.sin(t * 0.8 + n.ph + j) * 0.4);
+          dot(g, x + Math.cos(a) * r * 0.55, y + Math.sin(a) * r * 0.55, r * 0.55);
         }
+        g.fill();
+        // kind, as a small white mark inside: □ presentation · ◇ conference · solid = award
+        f.fillStyle = "#fff"; f.beginPath();
+        if (kind === "Presentation") f.rect(x - 1.6, y - 1.6, 3.2, 3.2);
+        if (kind === "Conference") { f.moveTo(x, y - 2.4); f.lineTo(x + 2.4, y); f.lineTo(x, y + 2.4); f.lineTo(x - 2.4, y); f.closePath(); }
+        f.fill();
         if (n.item && hz === 1) { f.font = '9px "IBM Plex Mono", ui-monospace, monospace'; f.fillStyle = MID; f.textAlign = "left"; f.fillText(String(Math.floor(n.item.year)), x + 10, y - 10); }
       });
     }
@@ -494,15 +469,6 @@
     layers.forEach(L => L.pts.forEach(p => (p.lit = rnd() < 0.1)));
   });
   root.querySelector("[data-down]").addEventListener("click", toIndex);
-  // design review: switch the middle stage between "neuron" and "curves"
-  const netBtn = root.querySelector("[data-net]");
-  const showNet = () => netBtn && (netBtn.innerHTML = `Network: <b>${NET === "neuron" ? "Neuron" : "Curves"}</b>`);
-  if (netBtn) netBtn.addEventListener("click", () => {
-    NET = NET === "neuron" ? "curves" : "neuron";
-    const url = new URL(location.href); url.searchParams.set("net", NET); history.replaceState(null, "", url);
-    buildNetwork(); flow = []; showNet();
-  });
-  showNet();
 
   new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(root);
   let rz;
