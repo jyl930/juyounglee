@@ -32,8 +32,10 @@
 
   // a text "page" stands in for a picture where the work has none (papers, talks, ideas)
   const doc = (kicker, title) => `<div class="doc"><span class="mono">${esc(kicker)}</span><b>${esc(title)}</b><i></i><i></i><i></i></div>`;
+  // papers and talks: a black box carrying the title itself (orange on hover)
+  const plate = (kicker, title) => `<div class="doc plate"><span class="mono">${esc(kicker)}</span><b>${esc(title)}</b></div>`;
   const textual = p => p.type === "paper" || p.type === "conference";
-  const thumb = p => textual(p) ? doc(p.award || p.venue.split(" (")[0], p.title) : drawing(p.id, "");
+  const thumb = p => textual(p) ? plate(p.award || p.venue.split(" (")[0], p.title) : drawing(p.id, "");
 
   /* ── search ─────────────────────────────────────────── */
   let activeType = "all", query = "";
@@ -191,11 +193,12 @@
   const IDEAS = window.IDEAS || [], PAGES = S.pages;
   const pad = n => String(n).padStart(2, "0");
   const card = (i, title, art, meta, href, note) => {
-    const open = href ? `<a class="card" href="${href}">` : `<div class="card">`;
+    const cls = title ? "card" : "card bare";   // bare: the title is inside the box, only the number sits above
+    const open = href ? `<a class="${cls}" href="${href}">` : `<div class="${cls}">`;
     return `${open}<div class="card-top"><span>${esc(title)}</span><span class="mono">${pad(i + 1)}</span></div>${art}` +
       `<div class="card-meta">${meta}</div>${note ? `<div class="card-note">${esc(note)}</div>` : ""}${href ? "</a>" : "</div>"}`;
   };
-  const workCard = (p, i) => card(i, p.title, thumb(p),
+  const workCard = (p, i) => card(i, textual(p) ? "" : p.title, thumb(p),
     `${esc(p.type === "paper" ? p.role : p.venue)} · ${Math.floor(p.year)}`, `#/p/${p.id}`, p.award);
   // hover menus under "research" and "design"
   Object.entries(PAGES).forEach(([group, list]) => {
