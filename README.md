@@ -22,7 +22,7 @@ way into its page:
 |---|---|---|---|
 | **01 Material & Ideation** | soft particles (non-digital): material samples that pool, scatter into grains or pull into fibres; ringed dots are loose ideas | particles stir around the cursor; a sample/idea shows its title | `#/material` (or the work itself) |
 | **02 Presentations & Awards** | crossing into the digital, particles snap to a grid and travel a narrowing network; its nodes are the talks (■ award · □ presentation · ◇ conference) | node shows title, venue, year | `#/talks` |
-| **03 Publications** | pixels land on stacked floor plates — one per paper — that form a space | plate lifts and shows the paper | the paper |
+| **03 Publications** | pixels drift into a field of depth: soft, edgeless clouds of points (one per paper) at different heights, seen in perspective with fog and slowly turning — a sense of space, not a model | the cursor shifts the viewpoint; a layer turns red and shows its paper | the paper |
 
 Soft particles use an SVG "goo" filter (blur + alpha threshold) so they
 merge like liquid; everything digital is drawn crisp. Stage counts and nodes

@@ -7,8 +7,9 @@
  *   02 Presentations/Awards  crossing into the digital, particles become
  *                            pixels and move only on a grid, through a
  *                            narrowing network whose nodes are the talks.
- *   03 Publications          pixels land on stacked floor plates — one plate
- *                            per paper — and build up a space.
+ *   03 Publications          pixels drift into a field of depth — soft, edgeless
+ *                            clouds of points, one per paper, seen in
+ *                            perspective — a sense of space rather than a model.
  *
  * Hover a stage to read it, hover an item to see what it is, click to go.
  * Soft particles are drawn on a "goo" canvas (blur + alpha threshold) so they
@@ -103,35 +104,41 @@
     });
   }
 
-  /* ── 03: floor plates, one per paper ── */
-  let plates = [], pl = {};
-  const GX = 9, GZ = 5;
-  function buildPlates() {
+  /* ── 03: a field of depth — one soft cloud of points per paper.
+        No edges, no frame: layers at different heights and offsets, seen in
+        perspective with fog, slowly turning, so only the sense of space remains. ── */
+  let layers = [], cam = { f: 1, D: 3, c: [0, 0] };
+  const LN = 170, RX = 1.5, RZ = 1.5;
+  function buildLayers() {
     const P = Math.max(3, PAPERS.length);
-    plates = Array.from({ length: P }, (_, k) => ({ k, item: PAPERS[k] || null, cells: new Uint8Array(GX * GZ) }));
-    if (still) plates.forEach(p => p.cells.forEach((_, i) => (p.cells[i] = rnd() < 0.45 ? 1 : 0)));
+    layers = Array.from({ length: P }, (_, k) => {
+      const pts = [];
+      for (let i = 0; i < LN; i++) {
+        const r = Math.sqrt(-2 * Math.log(1 - rnd() * 0.995)) * 0.38, a = rnd() * Math.PI * 2;
+        pts.push({ x: Math.cos(a) * r, z: Math.sin(a) * r, lit: rnd() < (still ? 0.5 : 0.1), ph: rnd() * 7 });
+      }
+      return { k, item: PAPERS[k] || null, pts, y: (k - (P - 1) / 2) * 1.0, dx: (k % 2 ? 1 : -1) * (0.12 + rnd() * 0.18), box: null };
+    });
   }
-  function plateGeometry() {
-    const P = plates.length;
+  function proj3(x, y, z, yaw, pitch) {
+    const ca = Math.cos(yaw), sa = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const X = x * ca - z * sa, Z0 = x * sa + z * ca;
+    const Y = y * cp - Z0 * sp, Z = y * sp + Z0 * cp;
+    const s = cam.D / (cam.D + Z);
+    return [cam.c[0] + X * s * cam.f, cam.c[1] - Y * s * cam.f, s];
+  }
+  function layerGeometry() {
     const [ax, ay] = map(ZONES[2][0], -0.5), [bx, by] = map(ZONES[2][1], 0.5);
     const bw = Math.abs(bx - ax), bh = Math.abs(by - ay);
-    const span = Math.min((bw * 0.6) / 0.866, (bh * 0.8) / (0.5 + 0.36 * (P - 1)));
-    pl = { c: map(0.835, 0), pw: span * 0.58, pd: span * 0.42, gap: span * 0.36 };
+    cam.c = map(0.835, 0); cam.f = 1;
+    let x0 = 0, x1 = 0, y0 = 0, y1 = 0;
+    [0, Math.PI / 4, Math.PI / 2].forEach(yaw => layers.forEach(L => [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b]) => {
+      const [x, y] = proj3(L.dx + a * RX * 0.8, L.y, b * RZ * 0.8, yaw, 0.3);
+      x0 = Math.min(x0, x - cam.c[0]); x1 = Math.max(x1, x - cam.c[0]); y0 = Math.min(y0, y - cam.c[1]); y1 = Math.max(y1, y - cam.c[1]);
+    })));
+    cam.f = Math.min((bw * 0.9) / (x1 - x0), (bh * 0.8) / (y1 - y0));
   }
-  function platePt(k, a, b, lift = 0) {
-    const { c, pw, pd, gap } = pl, P = plates.length;
-    const oy = ((P - 1) / 2 - k) * gap - lift;
-    return [c[0] + 0.866 * (a * pw - b * pd), c[1] + oy + 0.5 * (a * pw + b * pd)];
-  }
-  const plateOutline = (k, lift) => [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5]].map(([a, b]) => platePt(k, a, b, lift));
-  function inPoly(x, y, poly) {
-    let inside = false;
-    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-      const [xi, yi] = poly[i], [xj, yj] = poly[j];
-      if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
-    }
-    return inside;
-  }
+  const layerPt = (L, p, view, t) => proj3(L.dx + p.x * RX, L.y + (still ? 0 : Math.sin(t * 0.5 + p.ph) * 0.03), p.z * RZ, view.yaw, view.pitch);
 
   /* ── flowing particles ── */
   let flow = [], nextSpawn = 0;
@@ -140,8 +147,8 @@
     const r = Math.floor(rnd() * routes.length), route = routes[r].map(([u, v]) => map(u, v));
     const start = particlePos(c, p, t), a = route[0];
     const mid = [(start[0] + a[0]) / 2 + (rnd() - 0.5) * 120 * sc, (start[1] + a[1]) / 2 + (rnd() - 0.5) * 120 * sc];
-    const plate = Math.floor(rnd() * plates.length), cell = Math.floor(rnd() * GX * GZ);
-    flow.push({ born: t, start, mid, route, plate, cell, dur: 1.5 + rnd() * 0.8, len: pathLen(route) });
+    const layer = Math.floor(rnd() * layers.length), pt = Math.floor(rnd() * LN);
+    flow.push({ born: t, start, mid, route, layer, pt, dur: 1.5 + rnd() * 0.8, len: pathLen(route) });
   }
   function pathLen(pts) { let s = 0; for (let i = 1; i < pts.length; i++) s += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return s; }
   function alongPath(pts, d) {
@@ -161,7 +168,7 @@
     g.setTransform(dpr, 0, 0, dpr, 0, 0); f.setTransform(dpr, 0, 0, dpr, 0, 0);
     portrait = W / H < 0.9;
     sc = Math.max(0.6, Math.min(1.2, Math.min(W, H * 1.4) / 900));
-    plateGeometry();
+    layerGeometry();
     flow = [];
     // stage links sit at the head of each zone
     const counts = [MATS.length + IDEAS.length, TALKS.length, PAPERS.length];
@@ -175,6 +182,7 @@
   }
 
   /* ── state ── */
+  const view = { yaw: 0, pitch: 0.3 };
   let t0 = performance.now(), t = 0, last = 0, visible = true, mouse = null, hoverZone = -1, hit = null;
 
   function frame(now) {
@@ -268,42 +276,30 @@
       });
     }
 
-    /* 03 — plates */
-    const P = plates.length;
-    plates.forEach((p, k) => {
-      const kp = prog(t, T3 + k * 0.35, 0.9);
-      if (kp <= 0) return;
-      const hot = hit && hit.plate === p, lift = (1 - kp) * 24 + (hot ? 6 : 0);
-      const poly = plateOutline(k, lift);
-      f.globalAlpha = kp;
-      f.fillStyle = hot ? "#f1f1ee" : "#fafaf8"; f.strokeStyle = hot ? INK : on(2) ? "#444" : DIM; f.lineWidth = 1;
-      f.beginPath(); poly.forEach(([x, y], i) => (i ? f.lineTo(x, y) : f.moveTo(x, y))); f.closePath(); f.fill(); f.stroke();
-      // slab thickness on the two front edges
-      f.beginPath(); f.moveTo(poly[3][0], poly[3][1]); f.lineTo(poly[3][0], poly[3][1] + 3); f.lineTo(poly[2][0], poly[2][1] + 3); f.lineTo(poly[1][0], poly[1][1] + 3); f.lineTo(poly[1][0], poly[1][1]); f.stroke();
-      // landed pixels
-      f.fillStyle = hot ? ACCENT : on(2) ? INK : DIM; f.beginPath();
-      p.cells.forEach((v, i) => {
-        if (!v) return;
-        const [x, y] = platePt(k, ((i % GX) + 0.5) / GX - 0.5, (Math.floor(i / GX) + 0.5) / GZ - 0.5, lift);
-        dot(f, x, y, 1.7);
+    /* 03 — depth field */
+    const lookX = mouse && hz === 2 ? (mouse[0] - cam.c[0]) / W : 0, lookY = mouse && hz === 2 ? (mouse[1] - cam.c[1]) / H : 0;
+    view.yaw += ((still ? 0.5 : t * 0.07) + lookX * 1.2 - view.yaw) * 0.05;
+    view.pitch += (0.3 + lookY * 0.5 - view.pitch) * 0.05;
+    layers.forEach((L, k) => {
+      const kp = prog(t, T3 + k * 0.4, 1.2);
+      if (kp <= 0) { L.box = null; return; }
+      const hot = hit && hit.layer === L;
+      const [cx, cy] = proj3(L.dx, L.y, 0, view.yaw, view.pitch);
+      const [ex] = proj3(L.dx + RX * 0.55, L.y, 0, view.yaw, view.pitch), [, ez] = proj3(L.dx, L.y, RZ * 0.55, view.yaw, view.pitch);
+      L.box = { cx, cy, rx: Math.max(30, Math.hypot(ex - cx, 0) + 20), ry: Math.max(18, Math.abs(ez - cy) + 14) };
+      L.pts.forEach((p, i) => {
+        const appear = clamp(kp * 1.5 - (i / LN) * 0.5);
+        if (appear <= 0) return;
+        const [x, y, sd] = layerPt(L, p, view, t);
+        const fog = clamp((sd - 0.7) / 0.55);           // farther = fainter
+        f.globalAlpha = appear * (0.15 + 0.85 * fog);
+        f.fillStyle = p.lit ? (hot ? ACCENT : on(2) ? INK : DIM) : hot ? "#9a9a9a" : "#cfcfcf";
+        f.beginPath(); dot(f, x, y, (p.lit ? 2 : 1.1) * sd); f.fill();
       });
-      f.fill(); f.globalAlpha = 1;
     });
-    // the frame that makes the plates a space: corner columns and a core
-    const kc = prog(t, T3 + P * 0.35, 0.8);
-    if (kc > 0) {
-      f.strokeStyle = on(2) ? "#bdbdbd" : "#e6e6e6"; f.lineWidth = 0.75; f.globalAlpha = kc;
-      [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5]].forEach(([a, b]) => {
-        const [x0, y0] = platePt(0, a, b), [x1, y1] = platePt(P - 1, a, b, 0);
-        f.beginPath(); f.moveTo(x0, y0); f.lineTo(x1, y1); f.stroke();
-      });
-      f.strokeStyle = ACCENT; f.setLineDash([3, 4]); f.globalAlpha = kc * 0.6;
-      const [cx0, cy0] = platePt(0, 0, 0), [cx1, cy1] = platePt(P - 1, 0, 0);
-      f.beginPath(); f.moveTo(cx0, cy0 + 18); f.lineTo(cx1, cy1 - 18); f.stroke();
-      f.setLineDash([]); f.globalAlpha = 1;
-    }
+    f.globalAlpha = 1;
 
-    /* flow: soft drop → pixel on the grid → landed on a plate */
+    /* flow: soft drop → pixel on the grid → a point in the depth field */
     const DIGITAL = portrait ? map(ZONES[1][0], 0)[1] : map(ZONES[1][0], 0)[0];
     const speed = 150 * sc;
     g.fillStyle = INK; g.beginPath(); f.fillStyle = INK; f.beginPath();
@@ -320,10 +316,11 @@
         if (d < q.len) { [x, y] = alongPath(q.route, d); digital = true; }
         else {
           const k = clamp((d - q.len) / (110 * sc)), end = q.route[q.route.length - 1];
-          const ci = q.cell, [tx, ty] = platePt(q.plate, ((ci % GX) + 0.5) / GX - 0.5, (Math.floor(ci / GX) + 0.5) / GZ - 0.5);
-          x = lerp(end[0], tx, ease(k)); y = lerp(end[1], ty, ease(k)) - Math.sin(Math.PI * k) * 26 * sc;
+          const L = layers[q.layer], [tx, ty, sd] = layerPt(L, L.pts[q.pt], view, t);
+          x = lerp(end[0], tx, ease(k)); y = lerp(end[1], ty, ease(k)) - Math.sin(Math.PI * k) * 20 * sc;
           if (k >= 1) { land(q); return false; }
-          f.rect(x - 1.8, y - 1.8, 3.6, 3.6);
+          const r = lerp(2, 1.6 * sd, k);                 // the pixel softens into a point as it enters the depth
+          if (k < 0.5) f.rect(x - r, y - r, r * 2, r * 2); else dot(f, x, y, r);
           return true;
         }
       }
@@ -349,10 +346,9 @@
   }
 
   function land(q) {
-    const p = plates[q.plate];
-    p.cells[q.cell] = 1;
-    let lit = 0; p.cells.forEach(v => (lit += v));
-    if (lit > p.cells.length * 0.8) for (let i = 0; i < 8; i++) p.cells[Math.floor(rnd() * p.cells.length)] = 0;
+    const L = layers[q.layer];
+    L.pts[q.pt].lit = true;
+    if (L.pts.filter(p => p.lit).length > LN * 0.7) for (let i = 0; i < 12; i++) L.pts[Math.floor(rnd() * LN)].lit = false;
   }
 
   /* ── hit testing ── */
@@ -369,12 +365,15 @@
       for (const n of nodes) { const [nx, ny] = map(n.u, n.v); if (Math.abs(nx - x) < 14 && Math.abs(ny - y) < 14 && n.item) return { node: n, route: "#/talks", kicker: `${n.item.kind} · ${Math.floor(n.item.year)}`, title: n.item.title, sub: n.item.venue }; }
     }
     if (hoverZone === 2) {
-      for (let k = plates.length - 1; k >= 0; k--) {
-        if (inPoly(x, y, plateOutline(k, 0))) {
-          const p = plates[k];
-          return p.item ? { plate: p, route: `#/p/${p.item.id}`, kicker: `Publication · ${Math.floor(p.item.year)}`, title: p.item.title, sub: p.item.venue } : { plate: p, route: "#/publications" };
-        }
-      }
+      let best = null, bd = 1;
+      layers.forEach(L => {
+        if (!L.box) return;
+        const d = Math.hypot((x - L.box.cx) / L.box.rx, (y - L.box.cy) / L.box.ry);
+        if (d < bd) { bd = d; best = L; }
+      });
+      if (best) return best.item
+        ? { layer: best, route: `#/p/${best.item.id}`, kicker: `Publication · ${Math.floor(best.item.year)}`, title: best.item.title, sub: best.item.venue }
+        : { layer: best, route: "#/publications" };
     }
     return null;
   }
@@ -397,7 +396,7 @@
   });
   root.querySelector("[data-replay]").addEventListener("click", () => {
     t0 = performance.now(); last = 0; nextSpawn = 0; flow = [];
-    plates.forEach(p => p.cells.fill(0));
+    layers.forEach(L => L.pts.forEach(p => (p.lit = rnd() < 0.1)));
   });
   root.querySelector("[data-down]").addEventListener("click", toIndex);
 
@@ -405,7 +404,7 @@
   let rz;
   window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { layout(); draw(0); }, 120); });
 
-  buildMaterial(); buildNetwork(); buildPlates();
+  buildMaterial(); buildNetwork(); buildLayers();
   layout();
   requestAnimationFrame(frame);
 })();
