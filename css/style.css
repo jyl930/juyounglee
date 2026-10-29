@@ -6,7 +6,7 @@
   --line: #ececec;
   --accent: #ff4a1c;
   --sans: "Noto Sans", "Inter", -apple-system, "Helvetica Neue", sans-serif;   /* Inter is the fallback, as in Figma */
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --mono: var(--sans);   /* small uppercase labels, same family as the text */
   --serif: "Instrument Serif", "Times New Roman", serif;
   --gut: 24px;
   --fs: 13px;
@@ -32,14 +32,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .top {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  align-items: baseline;
+  align-items: center;
   padding: 18px var(--gut);
   position: sticky; top: 0; z-index: 20;
   background: rgba(255,255,255,.92);
   backdrop-filter: blur(6px);
 }
-.id { display: flex; gap: 10px; }
-.id .ko { color: var(--mid); }
+.id { display: flex; align-self: center; }
+.id img { display: block; height: 30px; width: auto; }
 /* the nav is one sentence — "Hello, I research and design" — and only the three words are links */
 .nav { color: var(--mid); font: 400 21px/1 var(--serif); white-space: nowrap; }
 .nav a { font-style: italic; color: var(--ink); transition: color .2s; }
