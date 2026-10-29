@@ -222,7 +222,7 @@
     flow = [];
     // stage links sit at the head of each zone
     const counts = [MATS.length, TALKS.length, PAPERS.length];
-    linksEl.innerHTML = STAGES.map((s, i) => `<a href="${s.route}" data-zone="${i}"><span><b>${s.no}</b>${esc(s.label)}<i>${counts[i]}</i></span><small>${esc(s.ko)}</small></a>`).join("");
+    linksEl.innerHTML = STAGES.map((s, i) => `<a href="${s.route}" data-zone="${i}"><span><b>${s.no}</b>${esc(s.label)}<i>${counts[i]}</i></span></a>`).join("");
     [...linksEl.children].forEach((a, i) => {
       const [x, y] = map(ZONES[i][0], 0);
       if (portrait) { a.style.left = "16px"; a.style.top = (i ? y + 8 : 10) + "px"; }
@@ -233,13 +233,24 @@
 
   /* ── state ── */
   const view = { yaw: 0, pitch: 0.3 };
-  let t0 = performance.now(), t = 0, last = 0, visible = true, mouse = null, hoverZone = -1, hit = null;
+  let t0 = performance.now(), t = 0, visible = true, mouse = null, hoverZone = -1, hit = null;
 
+  // The build-up plays at full speed; once every stage has appeared the clock
+  // eases down to PACE (< 1 = slower flow, drift and sway). The cursor always responds in real time.
+  const PACE = 0.55, EASE_OUT = 1.5;
+  const builtAt = () => T3 + (layers.length - 1) * 0.4 + 1.2;
+  function clock(real) {
+    const B = builtAt(), x = real - B;
+    if (x <= 0) return real;
+    if (x < EASE_OUT) return B + x - ((1 - PACE) * x * x) / (2 * EASE_OUT);
+    return B + EASE_OUT * (1 + PACE) / 2 + (x - EASE_OUT) * PACE;
+  }
+  let lastNow = 0;
   function frame(now) {
     requestAnimationFrame(frame);
     if (!visible) return;
-    t = still ? 30 : (now - t0) / 1000;
-    const dt = Math.min(0.05, t - last); last = t;
+    t = still ? 30 : clock((now - t0) / 1000);
+    const dt = Math.min(0.05, (now - lastNow) / 1000); lastNow = now;
     if (!still && t > T_FLOW) {
       const rate = 0.36 - 0.24 * clamp((t - T_FLOW) / 4);
       while (nextSpawn < t) { spawn(t); nextSpawn = Math.max(nextSpawn, t - 1) + rate; }
@@ -407,7 +418,7 @@
     // hovered item / stage tooltip
     if (mouse && hz >= 0) {
       const s = STAGES[hz];
-      let html = `<span>${s.no} — ${esc(s.label)}</span><b>${esc(s.ko)}</b><span>Enter →</span>`;
+      let html = `<span>${s.no}</span><b>${esc(s.label)}</b><span>Enter →</span>`;
       if (hit && hit.title) html = `<span>${esc(hit.kicker)}</span><b>${esc(hit.title)}</b><span>${esc(hit.sub)}</span>`;
       tipEl.innerHTML = html;
       tipEl.style.left = Math.min(mouse[0] + 16, W - 270) + "px";
@@ -425,11 +436,11 @@
   /* ── hit testing ── */
   function findHit(x, y) {
     if (hoverZone === 0) {
-      for (const d of ideas) { const [ix, iy] = ideaPos(d, t); if (Math.hypot(ix - x, iy - y) < 14) return { idea: d, route: "#/material", kicker: `Ideation · ${d.item.year}`, title: d.item.title, sub: d.item.titleKo }; }
+      for (const d of ideas) { const [ix, iy] = ideaPos(d, t); if (Math.hypot(ix - x, iy - y) < 14) return { idea: d, route: "#/material", kicker: `Ideation · ${d.item.year}`, title: d.item.title, sub: d.item.note }; }
       let best = null, bd = 80 * sc;
       clusters.forEach(c => { const [cx, cy] = clusterCenter(c), dd = Math.hypot(cx - x, cy - y); if (dd < bd) { bd = dd; best = c; } });
       if (best) return best.item
-        ? { cluster: best, route: `#/p/${best.item.id}`, kicker: `Material · ${Math.floor(best.item.year)}`, title: best.item.title, sub: best.item.titleKo || best.item.venue }
+        ? { cluster: best, route: `#/p/${best.item.id}`, kicker: `Material · ${Math.floor(best.item.year)}`, title: best.item.title, sub: best.item.venue }
         : { cluster: best, route: "#/material" };
     }
     if (hoverZone === 1) {
@@ -465,7 +476,7 @@
     location.hash = (hit && hit.route) || STAGES[hoverZone].route;
   });
   root.querySelector("[data-replay]").addEventListener("click", () => {
-    t0 = performance.now(); last = 0; nextSpawn = 0; flow = [];
+    t0 = performance.now(); nextSpawn = 0; flow = [];
     layers.forEach(L => L.pts.forEach(p => (p.lit = rnd() < 0.1)));
   });
 
