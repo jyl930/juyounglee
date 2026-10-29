@@ -5,7 +5,7 @@
  *                            that pool, scatter into grains, or pull into
  *                            fibres; loose ideas drift between them.
  *   02 Presentations/Awards  crossing into the digital, particles become
- *                            pixels and move only on a grid, through a
+ *                            pixels and glide along smooth curves through a
  *                            narrowing network whose nodes are the talks.
  *   03 Publications          pixels drift into a field of depth — soft, edgeless
  *                            clouds of points, one per paper, seen in
@@ -83,7 +83,7 @@
     return map(0.05 + 0.27 * (0.5 + 0.5 * Math.sin(s * d.sp + d.ph)), -0.38 + 0.76 * (0.5 + 0.5 * Math.sin(s * d.sp * 1.7 + d.ph * 2.3)));
   }
 
-  /* ── 02: the narrowing network; its nodes are the talks ── */
+  /* ── 02: the narrowing network of curves; its nodes are the talks ── */
   let nodes = [], edges = [], routes = [];
   function buildNetwork() {
     const T = Math.max(3, TALKS.length);
@@ -91,7 +91,15 @@
     const col = (n, u, spread) => Array.from({ length: n }, (_, i) => ({ u, v: n === 1 ? 0 : -spread + (2 * spread * i) / (n - 1) }));
     const A = col(nA, 0.43, 0.3), B = col(nB, 0.52, 0.15), C = col(1, 0.6, 0);
     nodes = [...A, ...B, ...C].map((n, i) => ({ ...n, item: TALKS[i] || null, col: i < nA ? 0 : i < nA + nB ? 1 : 2 }));
-    const elbow = (p, q) => { const mu = (p.u + q.u) / 2; return [[p.u, p.v], [mu, p.v], [mu, q.v], [q.u, q.v]]; };
+    // smooth S-curve between two nodes: leaves and arrives horizontally, so streams merge without corners
+    const elbow = (p, q) => {
+      const mu = (p.u + q.u) / 2, out = [];
+      for (let i = 0; i <= 20; i++) {
+        const s = i / 20, a = (1 - s) ** 3, b = 3 * (1 - s) ** 2 * s, c = 3 * (1 - s) * s * s, d = s ** 3;
+        out.push([a * p.u + b * mu + c * mu + d * q.u, a * p.v + b * p.v + c * q.v + d * q.v]);
+      }
+      return out;
+    };
     edges = [];
     A.forEach((a, i) => edges.push(elbow(a, B[nB === 1 ? 0 : Math.round((i * (nB - 1)) / Math.max(1, nA - 1))])));
     B.forEach(b => edges.push(elbow(b, C[0])));
@@ -324,11 +332,8 @@
           return true;
         }
       }
-      if (digital) {
-        // snap to a 6px grid: the digital side only knows whole steps
-        const sx = Math.round(x / 6) * 6, sy = Math.round(y / 6) * 6;
-        f.rect(sx - 2, sy - 2, 4, 4);
-      } else dot(g, x, y, 3.8);
+      if (digital) f.rect(x - 2, y - 2, 4, 4);   // past the boundary a drop becomes a crisp pixel
+      else dot(g, x, y, 3.8);
       return true;
     });
     g.fill(); f.fill();
