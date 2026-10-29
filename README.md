@@ -12,6 +12,10 @@ js/intro.js     opening drawing (canvas animation)
 
 Preview locally: `python3 -m http.server` → http://localhost:8000
 
+After changing anything in `css/` or `js/`, bump the `?v=` value on the
+`<link>`/`<script>` tags in `index.html` (e.g. to today's date). GitHub Pages lets
+browsers cache files for 10 minutes, and the new value makes them fetch the update.
+
 ## Pages
 
 The header reads as one sentence — **Hello, I research and design** — and only
