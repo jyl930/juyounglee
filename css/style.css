@@ -320,7 +320,7 @@ a.card:hover .doc.plate .mono { color: rgba(255,255,255,.85); }
 .hello-intro { position: sticky; top: 120px; }
 /* the header's serif, widened a little (it is a condensed face) — not to 1:1, just less narrow */
 .hello-title { font-size: clamp(40px, 4.2vw, 60px); line-height: 1.08; margin: 0 0 40px; width: fit-content; transform: scaleX(1.12); transform-origin: left top; }
-.name-mark { background: var(--accent); color: #fff; padding: 0 .1em 0 .06em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.name-mark { background: var(--accent); color: #fff; padding: 0 .1em 0 0;   /* the space before the name is inside the box */ -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .hello-intro .lead { margin-top: 0; }
 .hello-intro .contact { margin-top: 28px; }
 .cv-list { display: flex; flex-direction: column; gap: 48px; }
