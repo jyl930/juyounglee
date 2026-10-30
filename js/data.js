@@ -3,7 +3,6 @@
  *
  * 출처: HED LAB 홈페이지(member · publications · activities · achievements).
  * 화면에 보이는 문구는 모두 영문입니다(한글은 이 파일의 주석에만 씁니다).
- * TODO: 공공디자인 / 가상 공간 / UX·UI 프로젝트와 아이디에이션은 아직 초안(가제)입니다.
  *       전시 작업의 설명(summary)과 재료(material)도 채워 주세요.
  *
  * type   : paper | conference | material | project
@@ -47,7 +46,7 @@ window.SITE = {
     ],
     design: [
       { id: "exhibition", label: "Exhibition", type: "material",
-        lead: "Material-led work shown at international fairs and exhibitions, with the ideation behind it." },
+        lead: "Material-led work shown at international fairs and exhibitions." },
       { id: "projects", label: "Projects", type: "project",
         lead: "Spatial and interior design projects from studio, coursework and practice." }
     ]
@@ -79,11 +78,6 @@ window.SITE = {
     ]},
     { group: "Affiliation", items: [
       { when: "2024 —", what: "Human & Environment Design Lab (HED LAB), Hanyang University", note: "Ph.D. Student" }
-    ]},
-    { group: "Experience", items: [
-      { when: "2023",      what: "Project Designer — Jun and Jun corp.", note: "Pop-up booth interior design for cremecrumble, The Hyundai Seoul (08–09.2023)" },
-      { when: "2022 —",    what: "Assistant Designer — Jun and Jun corp.", note: "cremecrumble dessert package design, brand poster, sticker and cartoon (from 09.2022)" },
-      { when: "2022",      what: "Project Designer — Massiv. corp.", note: "English textbook design for high school students (03–06.2022)" }
     ]},
     { group: "Awards", items: [
       { when: "2025", what: "Best Paper Presentation Award — KIID Fall Conference", note: "Spatial UX for Usability of Digital Elements in Exhibition Spaces" },
@@ -120,7 +114,7 @@ window.TYPES = {                       // order = columns on the Search page
 };
 
 window.PROJECTS = [
-  // ── 전시 · 재료 탐구 (HED LAB activities) — TODO: summary와 material을 채워 주세요 ──
+  // ── 전시 · 재료 탐구 (HED LAB activities · portfolio-content) ──
   {
     id: "m01", type: "material", year: 2026.75,
     title: "Second Harvest",
@@ -349,14 +343,3 @@ window.PROJECTS = [
     summary: "Exhibition elements that draw the MZ generation's responses in Instagrammable exhibitions. — Juyoung Lee, Yeonsook Hwang"
   }
 ];
-
-/*
- * 아이디에이션 — 연구를 시작하기 전의 질문, 스케치, 재료 테스트 메모.
- * TODO: 초안(가제)입니다. 실제 내용으로 교체하세요.
- */
-window.IDEAS = [
-  { year: 2025, title: "Digital residue in physical rooms", note: "Question note (draft)" },
-  { year: 2024, title: "Material that remembers touch", note: "Material test (draft)" },
-  { year: 2024, title: "Screens as walls, walls as screens", note: "Sketch (draft)" }
-];
-
