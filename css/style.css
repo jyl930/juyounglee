@@ -278,6 +278,14 @@ body[data-view="home"] .foot { display: none; }
 .sib a { color: var(--faint); }
 .sib a.on { color: var(--ink); }
 .card-note { margin-top: 3px; font-size: 11px; color: var(--accent); }
+/* text-only list under the cards (invitation exhibitions) */
+.text-list:empty { display: none; }
+.text-list { margin-top: 104px; }
+.list-head { display: flex; justify-content: space-between; font-size: 12px; color: var(--mid); border-bottom: 1px solid var(--ink); padding-bottom: 8px; }
+.list-row { display: grid; grid-template-columns: 64px minmax(0, 1.3fr) minmax(0, 1.6fr) minmax(0, 1.2fr); gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+.list-row b { font-weight: 500; }
+.list-row span { color: var(--mid); }
+.list-row span:first-child { font-size: 12px; }
 .award { color: var(--accent); margin: -20px 0 24px; }
 .lead { font: 400 13px/1.65 var(--sans); max-width: 620px; margin: 0; color: var(--ink); }
 .interests { color: var(--mid); margin: 4px 0 0; }
@@ -383,6 +391,8 @@ body.sheet-open .sheet { transform: none; }
   .sib { display: flex; }
   .grid-tools { margin-top: 64px; }
   .hello { grid-template-columns: 1fr; }
+  .list-row { grid-template-columns: 44px 1fr; row-gap: 2px; }
+  .list-row > span:nth-child(3), .list-row > span:nth-child(4) { grid-column: 2; font-size: 12px; }
   .hello-intro { position: static; }
   .tabs { display: flex; flex-wrap: wrap; gap: 0 16px; }
   .tabs button, .tabs button:not(:first-child) { border: 0; padding: 8px 0; }
