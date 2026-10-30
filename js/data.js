@@ -73,8 +73,8 @@ window.SITE = {
 
   cv: [
     { group: "Education", items: [
-      { when: "— present", what: "Integrated M.S.–Ph.D. Program, Interior Architecture Design, Hanyang University", note: "Coursework completion expected" },
-      { when: "2019 —",    what: "B.S. Interior Architecture Design (Major), Architecture (Minor), Hanyang University", note: "Major from 2019 · Architecture minor from 2020" }
+      { when: "2024 —",    what: "Integrated M.S.–Ph.D. Program, Interior Architecture Design, Hanyang University", note: "Coursework completion expected" },
+      { when: "2019–2024", what: "Bachelor of Interior Architecture Design, Hanyang University", note: "Minor in Architecture (School of Architecture) · Graduated February 2024" }
     ]},
     { group: "Affiliation", items: [
       { when: "2024 —", what: "Human & Environment Design Lab (HED LAB), Hanyang University", note: "Ph.D. Student" }
