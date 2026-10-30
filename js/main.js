@@ -35,7 +35,33 @@
   // papers and talks: a black box carrying the title itself (orange on hover)
   const plate = (kicker, title) => `<div class="doc plate"><span class="mono">${esc(kicker)}</span><b>${esc(title)}</b></div>`;
   const textual = p => p.type === "paper" || p.type === "conference";
-  const thumb = p => textual(p) ? plate(p.award || p.venue.split(" (")[0], p.title) : drawing(p.id, "");
+  /* real media: images, video files (mp4/webm), and YouTube/Vimeo links.
+     The first file of p.media is the card cover; the sheet shows them all. */
+  const isVideo = src => /\.(mp4|webm|mov)(\?|#|$)/i.test(src);
+  function embedURL(src) {
+    let m = src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([\w-]{11})/);
+    if (m) return `https://www.youtube-nocookie.com/embed/${m[1]}`;
+    m = src.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    return m ? `https://player.vimeo.com/video/${m[1]}` : null;
+  }
+  function mediaEl(src, p, full) {
+    const e = embedURL(src);
+    if (e) return full ? `<div class="embed"><iframe src="${esc(e)}" title="${esc(p.title)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>` : "";
+    if (isVideo(src)) return full
+      ? `<video class="media" src="${esc(src)}" controls playsinline preload="metadata"></video>`
+      : `<video class="media cover" src="${esc(src)}#t=0.1" muted loop playsinline preload="metadata"></video>`;   // #t=0.1 shows the first frame
+    return `<img class="media" src="${esc(src)}" alt="${esc(p.title + " — " + p.venue)}" loading="lazy">`;
+  }
+  const coverOf = p => (p.media || []).find(s => !embedURL(s));
+  const thumb = p => textual(p) ? plate(p.award || p.venue.split(" (")[0], p.title)
+    : coverOf(p) ? mediaEl(coverOf(p), p, false) : drawing(p.id, "");
+  const playIn = el => { const v = el && el.querySelector("video.cover"); if (v) v.play().catch(() => {}); };
+  // video covers play while the pointer is on their card
+  document.addEventListener("pointerover", e => playIn(e.target.closest(".card")));
+  document.addEventListener("pointerout", e => {
+    const c = e.target.closest(".card");
+    if (c && !c.contains(e.relatedTarget)) { const v = c.querySelector("video.cover"); if (v) v.pause(); }
+  });
 
   /* ── search ─────────────────────────────────────────── */
   let activeType = "all", query = "";
@@ -149,6 +175,7 @@
     tip.style.left = Math.min(mx + 20, rect.width - 232) + "px";
     tip.style.top = (my > rect.height - 200 ? my - 200 : my + 16) + "px";
     tip.classList.add("on");
+    playIn(tip);
   }
   plane.addEventListener("pointermove", e => {
     const r = plane.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
@@ -183,7 +210,7 @@
     const r = document.createElement("a");
     r.className = "row"; r.href = `#/p/${p.id}`;
     r.innerHTML = `<span class="mono">${p.no}</span><span class="t"><b>${esc(p.title)}</b></span><span>${T[p.type].label}</span><span>${esc(p.venue)}</span><span class="mono">${Math.floor(p.year)}</span>`;
-    r.addEventListener("pointerenter", () => { hov.innerHTML = thumb(p); hov.classList.add("on"); });
+    r.addEventListener("pointerenter", () => { hov.innerHTML = thumb(p); hov.classList.add("on"); playIn(hov); });
     r.addEventListener("pointerleave", () => hov.classList.remove("on"));
     rows.appendChild(r); p._row = r;
   });
@@ -235,7 +262,10 @@
   function openSheet(p) {
     current = p;
     $("#s-no").textContent = `${p.no} / ${String(items.length).padStart(2, "0")} — ${T[p.type].label}`;
-    const gal = textual(p) ? "" : Array.from({ length: 5 }, (_, i) => drawing(p.id + i, `IMAGE ${String(i + 1).padStart(2, "0")}`).replace('class="ph"', `class="ph${i % 3 === 0 ? " wide" : ""}"`)).join("");
+    const media = p.media || [];
+    const gal = media.length
+      ? media.map((s, i) => `<figure class="${i === 0 || embedURL(s) || isVideo(s) ? "full" : ""}">${mediaEl(s, p, true)}</figure>`).join("")
+      : textual(p) ? "" : Array.from({ length: 5 }, (_, i) => drawing(p.id + i, `IMAGE ${String(i + 1).padStart(2, "0")}`).replace('class="ph"', `class="ph${i % 3 === 0 ? " full" : ""}"`)).join("");
     $("#sheet-body").innerHTML = `
       <h1>${esc(p.title)}</h1>
       <h2>${esc(p.venue)}</h2>
@@ -247,12 +277,16 @@
       </div>
       ${p.award ? `<p class="award mono">${esc(p.award)}</p>` : ""}
       <p class="desc">${esc(p.summary)}${textual(p) ? "" : `<br><span style="color:var(--mid)">${esc(p.venue)}</span>`}</p>
+      ${p.link ? `<p class="links"><a href="${esc(p.link)}" target="_blank" rel="noopener">${p.type === "paper" ? "Read the paper" : "Open link"} ↗</a></p>` : ""}
       <div class="gallery">${gal}</div>`;
     $("#sheet-body").scrollTop = 0;
     document.body.classList.add("sheet-open");
     $("#sheet").setAttribute("aria-hidden", "false");
   }
   function closeSheet() {
+    $$("#sheet video").forEach(v => v.pause());
+    // empty the sheet once it has slid away, so embedded players stop too
+    setTimeout(() => { if (!current) $("#sheet-body").innerHTML = ""; }, 500);
     document.body.classList.remove("sheet-open");
     $("#sheet").setAttribute("aria-hidden", "true");
     current = null;
@@ -273,6 +307,7 @@
         #/ home · #/search · #/hello · #/research/<page> · #/design/<page> · #/p/<id>
         Older addresses still land in the right place.                          */
   const ALIAS = { "#/about": "#/hello", "#/material": "#/design/exhibition", "#/research/exhibitions": "#/design/exhibition",
+                  "#/design/interior-architecture": "#/design/projects", "#/design/architecture": "#/design/projects",
                   "#/conferences": "#/research/conferences", "#/talks": "#/research/conferences", "#/publications": "#/research/publications" };
   let lastView = "#/", lastPage = null;
   function go(h) { location.hash = h; }
