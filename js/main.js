@@ -34,7 +34,7 @@
   const doc = (kicker, title) => `<div class="doc"><span class="mono">${esc(kicker)}</span><b>${esc(title)}</b><i></i><i></i><i></i></div>`;
   // papers and talks: a black box carrying the title itself (orange on hover)
   const plate = (kicker, title) => `<div class="doc plate"><span class="mono">${esc(kicker)}</span><b>${esc(title)}</b></div>`;
-  const textual = p => p.type === "paper" || p.type === "conference";
+  const textual = p => p.type === "paper" || p.type === "conference" || p.invited;   // shown without pictures
   /* real media: images, video files (mp4/webm), and YouTube/Vimeo links.
      The first file of p.media is the card cover; the sheet shows them all. */
   const isVideo = src => /\.(mp4|webm|mov)(\?|#|$)/i.test(src);
@@ -235,11 +235,15 @@
     $("#sib").innerHTML = PAGES[group].map(x => `<a href="#/${group}/${x.id}" class="${x === pg ? "on" : ""}">${esc(x.label)}</a>`).join("");
     $("#sub-title").textContent = pg.label;
     $("#sub-lead").textContent = pg.lead;
-    const work = items.filter(p => p.type === pg.type);
+    const all = items.filter(p => p.type === pg.type), work = all.filter(p => !p.invited), invited = all.filter(p => p.invited);
     const cards = work.map(workCard);
     if (pg.type === "material") IDEAS.forEach((d, i) => cards.push(card(work.length + i, d.title, doc("Ideation", d.title), `${esc(d.note)} · ${d.year}`)));
     $("#sub-grid").innerHTML = cards.join("");
     $("#sub-count").textContent = `${pad(cards.length)} items`;
+    // invitation exhibitions: a plain list under the cards, no pictures
+    $("#sub-list").innerHTML = invited.length ? `
+      <header class="list-head"><span>International Invitation Exhibitions</span><span>${pad(invited.length)}</span></header>
+      ${invited.map(p => `<div class="list-row"><span>${Math.floor(p.year)}</span><b>${esc(p.title)}</b><span>${esc(p.venue)}</span><span>${esc(p.role)}</span></div>`).join("")}` : "";
   }
   // large or small cards; the choice is kept for the next visit
   function setSize(size) {

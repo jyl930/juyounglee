@@ -19,6 +19,7 @@
  *            GitHub는 100MB 넘는 파일을 받지 않으니 1080p로 압축해 20–50MB 이하로.
  *          · YouTube / Vimeo 주소: 상세 화면에서 바로 재생 (카드 표지로는 쓰이지 않음)
  * link   : (선택) 논문 DOI·PDF, 영상 등 외부 링크 — 상세 화면에 버튼으로 표시
+ * invited: (선택) 국제초대전 — Exhibition 페이지에서 이미지 카드 대신 텍스트 목록으로 표시
  */
 
 window.SITE = {
@@ -141,6 +142,7 @@ window.PROJECTS = [
   {
     id: "m04", type: "material", year: 2026.15,
     title: "The Algorithm of Color",
+    invited: true,
     venue: "38th KISD International Space Design Exhibition", role: "Juyoung Lee, Minkyung Lee, Yeonsook Hwang",
     material: "",
     summary: "Exhibited at 38th KISD International Space Design Exhibition."
@@ -162,6 +164,7 @@ window.PROJECTS = [
   {
     id: "m07", type: "material", year: 2025.2,
     title: "Fill Green, Feel Green",
+    invited: true,
     venue: "KIID 2025 International Invitation Exhibition", role: "Juyoung Lee, Yeonsook Hwang",
     material: "",
     summary: "Exhibited at KIID 2025 International Invitation Exhibition."
@@ -176,6 +179,7 @@ window.PROJECTS = [
   {
     id: "m09", type: "material", year: 2024.65,
     title: "Layers of Tradition",
+    invited: true,
     venue: "KIID 2024 International Invitation Exhibition", role: "Juyoung Lee, Yujin Kim, Yeonsook Hwang",
     material: "",
     summary: "Exhibited at KIID 2024 International Invitation Exhibition."
@@ -183,6 +187,7 @@ window.PROJECTS = [
   {
     id: "m10", type: "material", year: 2024.4,
     title: "The Aesthetics of Layers",
+    invited: true,
     venue: "31st KISD International Space Design Exhibition", role: "Yujin Kim, Juyoung Lee, Yeonsook Hwang",
     material: "",
     summary: "Exhibited at 31st KISD International Space Design Exhibition."
@@ -190,6 +195,7 @@ window.PROJECTS = [
   {
     id: "m11", type: "material", year: 2024.15,
     title: "GreenUr House",
+    invited: true,
     venue: "KSDS 2024 International Spring Invitational Exhibition", role: "Juyoung Lee, Yeonsook Hwang",
     material: "",
     summary: "Exhibited at KSDS 2024 International Spring Invitational Exhibition."
