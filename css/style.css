@@ -153,7 +153,7 @@ body[data-view="home"] .foot { display: none; }
 .modes button.on { color: var(--ink); }
 
 /* tabs: the field's columns — same grid as the field below, so each tab heads its column */
-.tabs { display: grid; grid-template-columns: 120px repeat(5, minmax(0, 1fr)); padding: 0 var(--gut); border-bottom: 1px solid var(--line); }
+.tabs { display: grid; grid-template-columns: 120px repeat(4, minmax(0, 1fr)); padding: 0 var(--gut); border-bottom: 1px solid var(--line); }
 .tabs button { text-align: left; padding: 10px 12px 10px 0; color: #b3b3b3; display: flex; align-items: center; gap: 0; white-space: nowrap; overflow: hidden; transition: color .2s; }
 .tabs button:not(:first-child) { padding-left: 12px; border-left: 1px solid var(--line); }
 .tabs button:hover { color: var(--mid); }
@@ -201,12 +201,11 @@ body[data-view="home"] .foot { display: none; }
   transition: opacity .35s, transform .35s cubic-bezier(.2,.8,.2,1);
 }
 .mk i { display: block; width: 7px; height: 7px; background: var(--ink); transition: transform .25s, background .25s; }
-/* symbols: ○ publications · □ conferences · ■ exhibition · ◆ interior architecture · ● architecture */
+/* symbols: ○ publications · □ conferences · ■ exhibition · ◆ projects */
 .mk[data-type="paper"] i        { background: transparent; border: 1px solid var(--ink); border-radius: 50%; width: 9px; height: 9px; }
 .mk[data-type="conference"] i   { background: transparent; border: 1px solid var(--ink); width: 8px; height: 8px; }
 .mk[data-type="material"] i     { width: 7px; height: 7px; }
-.mk[data-type="interior"] i     { transform: rotate(45deg); width: 7px; height: 7px; }
-.mk[data-type="architecture"] i { border-radius: 50%; width: 8px; height: 8px; }
+.mk[data-type="project"] i      { transform: rotate(45deg); width: 7px; height: 7px; }
 .mk span {
   position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
   white-space: nowrap; font-size: 12px; color: var(--ink);

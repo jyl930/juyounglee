@@ -273,6 +273,7 @@
         #/ home · #/search · #/hello · #/research/<page> · #/design/<page> · #/p/<id>
         Older addresses still land in the right place.                          */
   const ALIAS = { "#/about": "#/hello", "#/material": "#/design/exhibition", "#/research/exhibitions": "#/design/exhibition",
+                  "#/design/interior-architecture": "#/design/projects", "#/design/architecture": "#/design/projects",
                   "#/conferences": "#/research/conferences", "#/talks": "#/research/conferences", "#/publications": "#/research/publications" };
   let lastView = "#/", lastPage = null;
   function go(h) { location.hash = h; }

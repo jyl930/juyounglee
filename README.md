@@ -28,7 +28,7 @@ top instead. On the right, **Search** (with a magnifier) opens the search page.
 | `#/` | **Home** — only the opening drawing (click the name in the header to return) |
 | `#/hello` | two columns: "Hello, / I'm Juyoung Lee" (serif), bio and contact on the left (stays put); CV groups stacked on the right |
 | `#/research/publications` · `#/research/conferences` | research sub-pages (awards are noted on the presentation they were given for) |
-| `#/design/exhibition` · `#/design/interior-architecture` · `#/design/architecture` | design sub-pages |
+| `#/design/exhibition` · `#/design/projects` | design sub-pages |
 | `#/search` | typed query + Field / List of every work |
 | `#/p/<id>` | a work's sheet, opened over the current page |
 
@@ -67,8 +67,8 @@ speed; once every stage has appeared the motion eases down to `PACE` in
 ## Search — "Field"
 
 The Search page is a drawing, not a grid of thumbnails. Its columns are the
-five sub-pages — the tabs on top (○ Publications · □ Conferences · ■ Exhibition
-· ◆ Interior Architecture · ● Architecture) filter them — and its rows are the
+four sub-pages — the tabs on top (○ Publications · □ Conferences · ■ Exhibition
+· ◆ Projects) filter them — and its rows are the
 years, newest on top. A typed query (borrowed from the
 HED LAB search bar) filters the drawing live; type anything to search.
 Hover shows a crosshair + coordinate readout and a preview; click opens the

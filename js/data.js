@@ -6,8 +6,8 @@
  * TODO: 공공디자인 / 가상 공간 / UX·UI 프로젝트와 아이디에이션은 아직 초안(가제)입니다.
  *       전시 작업의 설명(summary)과 재료(material)도 채워 주세요.
  *
- * type   : paper | conference | material | interior | architecture
- *          (Publications · Conferences · Exhibition · Interior Architecture · Architecture)
+ * type   : paper | conference | material | project
+ *          (Publications · Conferences · Exhibition · Projects)
  * year   : Search 화면의 세로 위치. 소수점은 같은 해 안에서 점을 벌려 놓기 위한 값이고,
  *          화면에는 연도만 표시됩니다.
  * award  : (선택) 수상 내역 — 카드와 상세에 함께 표시됩니다.
@@ -39,10 +39,8 @@ window.SITE = {
     design: [
       { id: "exhibition", label: "Exhibition", type: "material",
         lead: "Material-led work shown at international fairs and exhibitions, with the ideation behind it." },
-      { id: "interior-architecture", label: "Interior Architecture", type: "interior",
-        lead: "Interior architecture projects — virtual spaces including the graduation work, and speculative UX/UI cases from graduate courses." },
-      { id: "architecture", label: "Architecture", type: "architecture",
-        lead: "Architecture and public projects." }
+      { id: "projects", label: "Projects", type: "project",
+        lead: "Spatial and interior design projects from studio, coursework and practice." }
     ]
   },
 
@@ -68,10 +66,15 @@ window.SITE = {
   cv: [
     { group: "Education", items: [
       { when: "— present", what: "Integrated M.S.–Ph.D. Program, Interior Architecture Design, Hanyang University", note: "Coursework completion expected" },
-      { when: "",          what: "B.S. Interior Architecture Design (Major), Architecture (Minor), Hanyang University", note: "" }
+      { when: "2019 —",    what: "B.S. Interior Architecture Design (Major), Architecture (Minor), Hanyang University", note: "Major from 2019 · Architecture minor from 2020" }
     ]},
     { group: "Affiliation", items: [
       { when: "2024 —", what: "Human & Environment Design Lab (HED LAB), Hanyang University", note: "Ph.D. Student" }
+    ]},
+    { group: "Experience", items: [
+      { when: "2023",      what: "Project Designer — Jun and Jun corp.", note: "Pop-up booth interior design for cremecrumble, The Hyundai Seoul (08–09.2023)" },
+      { when: "2022 —",    what: "Assistant Designer — Jun and Jun corp.", note: "cremecrumble dessert package design, brand poster, sticker and cartoon (from 09.2022)" },
+      { when: "2022",      what: "Project Designer — Massiv. corp.", note: "English textbook design for high school students (03–06.2022)" }
     ]},
     { group: "Awards", items: [
       { when: "2025", what: "Best Paper Presentation Award — KIID Fall Conference", note: "Exhibition Space UX Design for Improving the Usability of Digital Elements" },
@@ -93,6 +96,9 @@ window.SITE = {
       { when: "2024", what: "KIID 2024 International Invitation Exhibition", note: "Layers of Tradition" },
       { when: "2024", what: "31st KISD International Space Design Exhibition", note: "The Aesthetics of Layers" },
       { when: "2024", what: "KSDS 2024 International Spring Invitational Exhibition", note: "GreenUr House" }
+    ]},
+    { group: "Skills", items: [
+      { when: "",          what: "AutoCAD · Rhino · SketchUp · Enscape · Lumion", note: "Illustrator · Photoshop · After Effects" }
     ]}
   ]
 };
@@ -101,8 +107,7 @@ window.TYPES = {                       // order = columns on the Search page
   paper:        { label: "Publications" },
   conference:   { label: "Conferences" },
   material:     { label: "Exhibition" },
-  interior:     { label: "Interior Architecture" },
-  architecture: { label: "Architecture" }
+  project:      { label: "Projects" }
 };
 
 window.PROJECTS = [
@@ -184,44 +189,52 @@ window.PROJECTS = [
     material: "",
     summary: "Exhibited at KSDS 2024 International Spring Invitational Exhibition."
   },
-  // ── TODO: 아래 Architecture(공공) · Interior Architecture(가상 공간 · UX/UI) 프로젝트는 초안(가제)입니다 ──
+  // ── Projects (CV) ──
   {
-    id: "p01", type: "architecture", year: 2024.2,
+    id: "j01", type: "project", year: 2023.65,
+    title: "Cremecrumble Pop-up Booth",
+    venue: "The Hyundai Seoul", role: "Project Designer, Jun and Jun corp.",
+    material: "",
+    summary: "Pop-up booth interior design for the cookie shop cremecrumble at The Hyundai Seoul department store, August–September 2023."
+  },
+  // ── TODO: 아래 Projects(공공 · 가상 공간 · UX/UI) 항목은 초안(가제)입니다 ──
+  {
+    id: "p01", type: "project", year: 2024.2,
     title: "Waiting Line",
     venue: "Public Design Project (TBD)", role: "Concept, Spatial Design",
     material: "Steel, concrete",
     summary: "A public design proposal that turns the time spent waiting at a stop into a single linear piece of furniture. (draft — replace)"
   },
   {
-    id: "p02", type: "architecture", year: 2022.8,
+    id: "p02", type: "project", year: 2022.8,
     title: "Street Room",
     venue: "Public Design Competition (TBD)", role: "Team Project",
     material: "Timber",
     summary: "A public space intervention that turns gaps along a walkway into rooms to pause in. (draft — replace)"
   },
   {
-    id: "v01", type: "interior", year: 2025.0,
+    id: "v01", type: "project", year: 2025.0,
     title: "Unfixed Rooms",
     venue: "Virtual Space Project", role: "Spatial Design, Real-time 3D",
     material: "Unreal Engine",
     summary: "A virtual space sequence whose boundaries shift with the visitor's movement. (draft — replace)"
   },
   {
-    id: "v02", type: "interior", year: 2023.5,
+    id: "v02", type: "project", year: 2023.5,
     title: "Gallery Without Walls",
     venue: "Virtual Exhibition Space", role: "Spatial Design",
     material: "WebGL",
     summary: "A virtual exhibition space that rethinks circulation without gravity or walls. (draft — replace)"
   },
   {
-    id: "u01", type: "interior", year: 2024.9,
+    id: "u01", type: "project", year: 2024.9,
     title: "Room Tuner",
     venue: "Virtual UX/UI Project", role: "UX Research, UI Design",
     material: "Figma, Prototype",
     summary: "An interface proposal for tuning light, sound and temperature room by room. (draft — replace)"
   },
   {
-    id: "u02", type: "interior", year: 2022.4,
+    id: "u02", type: "project", year: 2022.4,
     title: "Wayfinding Layer",
     venue: "Virtual UX/UI Project", role: "UX/UI Design",
     material: "Figma, AR Prototype",
