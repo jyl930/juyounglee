@@ -96,9 +96,6 @@ window.SITE = {
       { when: "2024", what: "KIID 2024 International Invitation Exhibition", note: "Layers of Tradition" },
       { when: "2024", what: "31st KISD International Space Design Exhibition", note: "The Aesthetics of Layers" },
       { when: "2024", what: "KSDS 2024 International Spring Invitational Exhibition", note: "GreenUr House" }
-    ]},
-    { group: "Skills", items: [
-      { when: "",          what: "AutoCAD · Rhino · SketchUp · Enscape · Lumion", note: "Illustrator · Photoshop · After Effects" }
     ]}
   ]
 };
