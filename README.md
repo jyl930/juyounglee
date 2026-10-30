@@ -85,6 +85,22 @@ notes, and exhibition descriptions and materials (`TODO` in `js/data.js`).
 The opening shows at most six material samples (newest first); the Material
 page lists every work.
 
+## Images and video
+
+Put a work's files in `assets/works/<id>/` and list them in its `media` field
+in `js/data.js` — the first one is the card cover, all of them appear in the
+sheet:
+
+```js
+media: ["assets/works/m01/01.jpg", "assets/works/m01/02.mp4", "https://youtu.be/…"]
+```
+
+Images: jpg / png / webp, ~2000px on the long side. Video files: mp4 (H.264)
+or webm — a video cover plays silently while the pointer is on its card; keep
+files under ~50MB (GitHub rejects files over 100MB). YouTube / Vimeo links play
+in the sheet. `link` adds a button (e.g. a paper's DOI). Works without media
+keep the drawn placeholder.
+
 ## Editing content
 
 Edit `js/data.js`. Each project's `year` (e.g. `2024.6`) and `scale`

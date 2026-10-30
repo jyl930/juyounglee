@@ -11,6 +11,14 @@
  * year   : Search 화면의 세로 위치. 소수점은 같은 해 안에서 점을 벌려 놓기 위한 값이고,
  *          화면에는 연도만 표시됩니다.
  * award  : (선택) 수상 내역 — 카드와 상세에 함께 표시됩니다.
+ * media  : (선택) 이미지·영상 목록. 첫 번째가 카드 표지, 전부 상세 화면 갤러리에 나옵니다.
+ *          파일은 assets/works/<id>/ 에 두고 경로를 적습니다. 예:
+ *            media: ["assets/works/m01/01.jpg", "assets/works/m01/02.mp4", "https://youtu.be/xxxxxxxxxxx"]
+ *          · 이미지: jpg / png / webp — 긴 변 2000px 안팎
+ *          · 영상 파일: mp4(H.264) / webm — 카드에서는 마우스를 올리면 소리 없이 재생.
+ *            GitHub는 100MB 넘는 파일을 받지 않으니 1080p로 압축해 20–50MB 이하로.
+ *          · YouTube / Vimeo 주소: 상세 화면에서 바로 재생 (카드 표지로는 쓰이지 않음)
+ * link   : (선택) 논문 DOI·PDF, 영상 등 외부 링크 — 상세 화면에 버튼으로 표시
  */
 
 window.SITE = {
