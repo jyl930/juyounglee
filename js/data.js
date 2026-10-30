@@ -254,7 +254,7 @@ window.PROJECTS = [
   {
     id: "j06", type: "project", year: 2025.5,
     title: "jogaKbo+",
-    venue: "Local design sharing platform — UX/UI design (2025)",
+    venue: "Ideation project — local design sharing platform (2025)",
     role: "with Yujin Kim",
     media: ["assets/works/j06/01.jpg", "assets/works/j06/02.jpg", "assets/works/j06/03.jpg"],
     summary: "JogaKbo+ is a local design sharing platform that bridges traditional textile techniques with modern collaboration. Non-designers can design textile patterns, share their creations, and connect with local artisans for production or DIY crafting, while upcycling and sustainable materials encourage responsible consumption. The platform also works as an educational hub, introducing natural dyeing with locally sourced materials such as repurposed tea leaves or onion skins — fostering a community-driven design culture that reduces overproduction."
