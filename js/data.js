@@ -31,7 +31,7 @@ window.SITE = {
 
   // 첫 화면 시퀀스의 세 단계 — 각 단계를 누르면 해당 페이지로 이동
   stages: [
-    { key: "material",     route: "#/design/exhibition",     no: "01", label: "Material & Ideation" },
+    { key: "material",     route: "#/design/exhibition",     no: "01", label: "Exhibition" },
     { key: "talks",        route: "#/research/conferences", no: "02", label: "Conferences & Awards" },
     { key: "publications", route: "#/research/publications", no: "03", label: "Publications" }
   ],

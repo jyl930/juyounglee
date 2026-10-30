@@ -1,7 +1,7 @@
 /*
  * Intro — the research sequence, in three stages that are also doors.
  *
- *   01 Material & Ideation   soft particles (non-digital): material samples
+ *   01 Exhibition            soft particles (non-digital): material samples
  *                            that pool, scatter into grains, or pull into
  *                            fibres; loose ideas drift between them.
  *   02 Presentations/Awards  crossing into the digital, particles become
@@ -267,18 +267,6 @@
     const hz = hoverZone, on = i => hz < 0 || hz === i;
     [...linksEl.children].forEach((a, i) => a.classList.toggle("on", hz === i));
 
-    // no dividing lines — only two faint words where one state turns into the next
-    f.font = '9px "Noto Sans", Inter, sans-serif'; f.fillStyle = DIM; f.textAlign = "center";
-    [[ZONES[1][0], "NON-DIGITAL → DIGITAL"], [ZONES[2][0], "DIGITAL → SPACE"]].forEach(([u, label], i) => {
-      const k = prog(t, [T2, T3][i] - 0.2, 0.8);
-      if (k <= 0) return;
-      f.globalAlpha = k;
-      const [x1, y1] = map(u, 0.46);
-      if (portrait) { f.textAlign = "right"; f.fillText(label, W - 16, y1 - 6); f.textAlign = "center"; }
-      else f.fillText(label, x1, y1 + 16);
-    });
-    f.globalAlpha = 1;
-
     /* 01 — material */
     const k1 = prog(t, T1, 1.6);
     const push = (p, x, y) => {
@@ -441,7 +429,7 @@
       let best = null, bd = 80 * sc;
       clusters.forEach(c => { const [cx, cy] = clusterCenter(c), dd = Math.hypot(cx - x, cy - y); if (dd < bd) { bd = dd; best = c; } });
       if (best) return best.item
-        ? { cluster: best, route: `#/p/${best.item.id}`, kicker: `Material · ${Math.floor(best.item.year)}`, title: best.item.title, sub: best.item.venue }
+        ? { cluster: best, route: `#/p/${best.item.id}`, kicker: `Exhibition · ${Math.floor(best.item.year)}`, title: best.item.title, sub: best.item.venue }
         : { cluster: best, route: STAGES[0].route };
     }
     if (hoverZone === 1) {
