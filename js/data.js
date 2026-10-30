@@ -88,7 +88,10 @@ window.SITE = {
     { group: "Awards", items: [
       { when: "2025", what: "Best Paper Presentation Award — KIID Fall Conference", note: "Spatial UX for Usability of Digital Elements in Exhibition Spaces" },
       { when: "2025", what: "Best Paper Presentation Award — KIID Spring Conference", note: "A Study on Spatial Affordance Design in Exhibition Spaces for the Use of Smart Docent" },
-      { when: "2024", what: "Best Paper Presentation Award — KIID Fall Conference", note: "A Study on the Improvement of Public Space Design in General Hospital through WELL Building Standard" }
+      { when: "2024", what: "Best Paper Presentation Award — KIID Fall Conference", note: "A Study on the Improvement of Public Space Design in General Hospital through WELL Building Standard" },
+      { when: "2023",      what: "Most Innovative Student Project of the Year — Larsen Architecture", note: "RE:Plastiground" },
+      { when: "2023",      what: "Kyoto Global Design Awards 2023 — Environment", note: "RE:Plastiground" },
+      { when: "2023",      what: "Best Paper Presentation Award — KIID Fall Conference", note: "RE:Plastiground" }
     ]},
     { group: "International Conferences", items: [
       { when: "2026", what: "EDRA 57, Amherst, USA", note: "Digital Inclusion and Spatial Affordances in South Korean Exhibition Spaces" },
@@ -122,7 +125,7 @@ window.PROJECTS = [
     id: "m01", type: "material", year: 2026.75,
     title: "Second Harvest",
     venue: "Habitare 2026, Helsinki, Finland",
-    role: "Juyoung Lee, Seoyoung Min, Yeonsook Hwang",
+    role: "Juyoung Lee, Seoyoung Min, Euna Shin, Yeonsook Hwang",
     material: "Rice husk, pectin, glycerin, calcium acetate",
     media: ["assets/works/m01/01.jpg", "assets/works/m01/02.jpg", "assets/works/m01/03.jpg", "assets/works/m01/04.jpg", "assets/works/m01/05.jpg", "assets/works/m01/06.jpg", "assets/works/m01/07.jpg", "assets/works/m01/08.jpg", "assets/works/m01/09.jpg", "assets/works/m01/10.jpg", "assets/works/m01/11.jpg"],
     summary: "Second Harvest reimagines agricultural waste as a lightweight interior material. Rice husk — one of the world's most abundant agricultural by-products — is washed, dried, milled and blended with naturally derived binders into a slurry, then molded and cured at low temperature into a bio brick, without synthetic resin adhesives. The process keeps the husk's fibrous texture while minimizing energy, showing an accessible, renewable way to make interior finishing materials from agricultural biomass."
@@ -225,7 +228,7 @@ window.PROJECTS = [
     title: "RE:Plastiground",
     venue: "20th Graduation Exhibition, Interior Architecture Design, Hanyang University (2023)",
     role: "Team leader — with Ju Yeon Lee, Mee So Lim",
-    award: "KGDA 2023 · Larsen Architecture · KIID Fall Conference 2023 Best Paper Presentation",
+    award: "Kyoto Global Design Awards 2023, Environment · Larsen Architecture, Most Innovative Student Project of the Year · KIID Fall Conference 2023 Best Paper Presentation Award",
     media: ["assets/works/j02/01.jpg", "assets/works/j02/02.mp4", "assets/works/j02/03.mp4", "assets/works/j02/04.mp4", "assets/works/j02/05.jpg", "assets/works/j02/06.jpg", "assets/works/j02/07.jpg", "assets/works/j02/08.jpg", "assets/works/j02/09.jpg", "assets/works/j02/10.jpg", "assets/works/j02/11.jpg", "assets/works/j02/12.jpg", "assets/works/j02/13.jpg"],
     summary: "RE:Plastiground — where plastic meets play — is an experiential recycling factory. Visitors meet giant bales of discarded plastic, watch it cleaned, sorted and shredded in a working Real Factory, and see it reborn as pellets that creators turn into new products in an upcycling factory. Plastic from nearby screening facilities returns to people as floors, furniture and merchandise, and the programme is structured around Csikszentmihalyi's flow theory so the experience becomes a lasting memory. The building itself follows the logic of plastic flakes — one whole massive plastic to walk through."
   },
@@ -258,8 +261,9 @@ window.PROJECTS = [
   {
     id: "r01", type: "paper", year: 2026.6,
     title: "Affordance Mechanisms of Smart Bus Shelters Based on User Behaviors",
-    venue: "Journal of the Korean Institute of Spatial Design (KCI), 35(2), 483–494", role: "First author",
+    venue: "Journal of the Korea Institute of Spatial Design (KCI), 21(5), 483–494", role: "First author",
     material: "",
+    link: "https://doi.org/10.35216/kisd.2026.21.5.483",
     summary: "Smart shelters now integrate real-time transit information, environmental control and safety services, but installing technology does not guarantee people can recognise and use it. Reading five curbside smart shelters in Seoul as affordance spaces, the study maps access, waiting, boarding, information checking and smart-function use against three affordance mechanisms — bids, responses and neutral support — and finds strong prompting but broken guidance at transitions, proposing a connected sequence for more continuous, inclusive use. — Ju Young Lee, Min Kyung Lee, Yeon Sook Hwang"
   },
   {
@@ -267,20 +271,23 @@ window.PROJECTS = [
     title: "Spatial UX Design for Exhibition Spaces in the Context of Digital Enabler Utilization",
     venue: "Journal of the Korean Institute of Interior Design (KCI), 35(3), 90–98", role: "First author",
     material: "",
-    summary: "How should exhibition spaces be designed when visitors rely on digital enablers? The study frames spatial UX for digital elements in exhibitions around accessibility, ergonomic compatibility, interactivity and emotional stability, and proposes design directions that let digital media support rather than burden the visit. — Ju Young Lee, Yeon Sook Hwang"
+    link: "https://doi.org/10.14774/JKIID.2026.35.3.090",
+    summary: "As cultural spaces enter the phygital era, digital enablers in exhibitions often cause cognitive overload and techno-stress — the digital paradox. Through a literature review and open coding, the study classifies digital enablers into three categories and derives four spatial UX dimensions: physical sensory environment, information interaction, social engagement and emotional wellbeing. An on-site checklist applied to five exhibition spaces in Seoul found accessibility options buried in secondary interface layers, device heights fixed for adults, digital guidance misaligned with physical signage, overlapping audiovisual stimuli and few recovery spaces. It proposes accessibility controls at the first interface level, adjustable body-responsive device placement, cognitive-load mitigation zones and emotional recovery spaces, positioning spatial UX as a mediator of digital wellbeing. — Ju Young Lee, Yeon Sook Hwang"
   },
   {
     id: "r03", type: "paper", year: 2025.8,
     title: "Enhancing Spatial Acceptance of Smart Docents through Digital Inclusion and Affordance Design",
     venue: "Journal of the Korean Institute of Interior Design (KCI), 34(4), 55–63", role: "First author",
     material: "",
-    summary: "Smart docents can widen access to exhibitions, but only if visitors with different digital skills can find and use them. Drawing on digital inclusion and affordance theory, the study examines how exhibition space design can raise the spatial acceptance of smart docents and proposes affordance design guidelines for more inclusive use. — Ju Young Lee, Yeon Sook Hwang"
+    link: "https://doi.org/10.14774/JKIID.2025.34.4.055",
+    summary: "Smart docents offer real-time personalised guidance, but differences in digital capacity can open a gap in experience. Grounded in digital inclusion, the study combines the Technology Acceptance Model and Hartson's affordance theory in a mixed-methods design. Surveys showed perceived usefulness drove intention to use, digital inclusion shaped both perceived ease of use and usefulness, and older adults used smart docents more despite lower digital inclusion. Field studies at the National Museum of Korea, the National Museum of Modern and Contemporary Art and Leeum Museum of Art pointed to spaces that support dwell time and device use, consistent visual guidance and layouts for autonomous navigation, leading to design strategies that raise the spatial acceptance of digital exhibition guides. — Ju Young Lee, Yeon Sook Hwang"
   },
   {
     id: "r04", type: "paper", year: 2025.55,
     title: "User Perception Analysis of Museum Spatial Design Based on Place Characteristics",
     venue: "Journal of the Korea Institute of Spatial Design (KCI), 20(5), 181–190", role: "Co-author",
     material: "",
+    link: "https://doi.org/10.35216/kisd.2025.20.5.181",
     summary: "Museums are becoming cultural and experiential platforms, yet little research asks how users perceive the space itself. A survey of 250 visitors compared the importance of and satisfaction with physical, activity and meaning characteristics of museum space; activity characteristics — interactivity and convenience — mattered most while satisfaction with experience programmes was lowest, pointing to design elements that strengthen a sense of place. — Feng Ming Guo, Ju Young Lee, Yeon Sook Hwang"
   },
   {
@@ -288,6 +295,7 @@ window.PROJECTS = [
     title: "A Study on Spatial Design Elements in SNS-Friendly Exhibition Spaces Using Sentiment Analysis of Social Media Text",
     venue: "Journal of the Korea Institute of Spatial Design (KCI), 20(3), 529–540", role: "First author",
     material: "",
+    link: "https://doi.org/10.35216/kisd.2025.20.3.529",
     summary: "Social media has turned exhibitions into spaces visitors share as much as view. Using sentiment analysis of social media text about ARTE MUSEUM, Korea's largest immersive media art brand, the study links visual, auditory and tactile design elements to visitors' emotional responses and derives spatial design elements that raise emotional satisfaction in SNS-friendly exhibitions. — Ju Young Lee, Hea Soo Ryu, Yeon Sook Hwang"
   },
   // ── 학회 발표 (HED LAB activities · achievements · portfolio-content) — 수상은 해당 발표의 award에 적습니다 ──
@@ -327,7 +335,7 @@ window.PROJECTS = [
   {
     id: "c06", type: "conference", year: 2026.3,
     title: "Affordance Mechanisms in AIoT Smart Shelters",
-    venue: "Conference paper, 2026",
+    venue: "KISD Spring Conference 2026",
     role: "Presentation",
     award: "",
     summary: "How AIoT smart bus shelters in Seoul prompt, respond to and support user behaviour through affordance mechanisms. — Juyoung Lee, Minkyung Lee, Yeonsook Hwang"
@@ -335,7 +343,7 @@ window.PROJECTS = [
   {
     id: "c07", type: "conference", year: 2024.45,
     title: "A Study on the Analysis of Exhibition Elements in Exhibition Space through the MZ Generation's Response to Instagrammable Exhibition",
-    venue: "Conference paper, 2024",
+    venue: "KIID Spring Conference 2024",
     role: "Presentation",
     award: "",
     summary: "Exhibition elements that draw the MZ generation's responses in Instagrammable exhibitions. — Juyoung Lee, Yeonsook Hwang"
