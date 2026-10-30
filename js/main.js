@@ -44,12 +44,14 @@
     m = src.match(/vimeo\.com\/(?:video\/)?(\d+)/);
     return m ? `https://player.vimeo.com/video/${m[1]}` : null;
   }
+  // a video cover shows the work's first still image until it plays (some phones show nothing before playback)
+  const posterOf = p => (p.media || []).find(s => !isVideo(s) && !embedURL(s));
   function mediaEl(src, p, full) {
     const e = embedURL(src);
     if (e) return full ? `<div class="embed"><iframe src="${esc(e)}" title="${esc(p.title)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>` : "";
     if (isVideo(src)) return full
       ? `<video class="media" src="${esc(src)}" controls playsinline preload="metadata"></video>`
-      : `<video class="media cover" src="${esc(src)}#t=0.1" muted loop playsinline preload="metadata"></video>`;   // #t=0.1 shows the first frame
+      : `<video class="media cover" src="${esc(src)}#t=0.1"${posterOf(p) ? ` poster="${esc(posterOf(p))}"` : ""} muted loop playsinline preload="metadata"></video>`;   // the poster (first still) shows until it plays
     return `<img class="media" src="${esc(src)}" alt="${esc(p.title + " — " + p.venue)}" loading="lazy">`;
   }
   const coverOf = p => (p.media || []).find(s => !embedURL(s));
