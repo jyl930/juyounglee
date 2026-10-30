@@ -223,7 +223,7 @@ window.PROJECTS = [
     venue: "20th Graduation Exhibition, Interior Architecture Design, Hanyang University (2023)",
     role: "Team leader — with Ju Yeon Lee, Mee So Lim",
     award: "Kyoto Global Design Awards 2023, Environment · Larsen Architecture, Most Innovative Student Project of the Year · KIID Fall Conference 2023 Best Paper Presentation Award",
-    media: ["assets/works/j02/01.jpg", "assets/works/j02/02.mp4", "assets/works/j02/03.mp4", "assets/works/j02/04.mp4", "assets/works/j02/05.jpg", "assets/works/j02/06.jpg", "assets/works/j02/07.jpg", "assets/works/j02/08.jpg", "assets/works/j02/09.jpg", "assets/works/j02/10.jpg", "assets/works/j02/11.jpg", "assets/works/j02/12.jpg", "assets/works/j02/13.jpg"],
+    media: ["assets/works/j02/01.jpg", "assets/works/j02/02.mp4", "assets/works/j02/03.mp4", "assets/works/j02/04.mp4", "assets/works/j02/05.jpg", "assets/works/j02/06.jpg", "assets/works/j02/07.jpg", "assets/works/j02/08.jpg", "assets/works/j02/09.jpg", "assets/works/j02/10.jpg", "assets/works/j02/11.jpg", "assets/works/j02/12.jpg", "assets/works/j02/13.jpg", "assets/works/j02/14.jpg", "assets/works/j02/15.jpg"],
     summary: "RE:Plastiground — where plastic meets play — is an experiential recycling factory. Visitors meet giant bales of discarded plastic, watch it cleaned, sorted and shredded in a working Real Factory, and see it reborn as pellets that creators turn into new products in an upcycling factory. Plastic from nearby screening facilities returns to people as floors, furniture and merchandise, and the programme is structured around Csikszentmihalyi's flow theory so the experience becomes a lasting memory. The building itself follows the logic of plastic flakes — one whole massive plastic to walk through."
   },
   {
@@ -250,6 +250,14 @@ window.PROJECTS = [
     role: "Individual project",
     media: ["assets/works/j05/01.jpg", "assets/works/j05/02.jpg", "assets/works/j05/03.jpg", "assets/works/j05/04.jpg", "assets/works/j05/05.jpg", "assets/works/j05/06.jpg", "assets/works/j05/07.jpg", "assets/works/j05/08.jpg", "assets/works/j05/09.jpg", "assets/works/j05/10.jpg", "assets/works/j05/11.jpg", "assets/works/j05/12.jpg", "assets/works/j05/13.jpg", "assets/works/j05/14.jpg", "assets/works/j05/15.jpg", "assets/works/j05/16.jpg", "assets/works/j05/17.jpg"],
     summary: "Greener + Urban House: a prototype that combines urban farming with housing on a site opening onto Seoul Forest in Seongsu-dong. A hexagonal grid organises the site to connect nature, residents and the city and to maximise solar gain; a greenhouse acts as the house's courtyard, green steps lead up from the street, and a sunken level steadies the temperature, so the house can seed a green network with the cafés and restaurants around it. Also shown at the KSDS 2024 International Spring Invitational Exhibition."
+  },
+  {
+    id: "j06", type: "project", year: 2025.5,
+    title: "jogaKbo+",
+    venue: "Local design sharing platform — UX/UI design (2025)",
+    role: "with Yujin Kim",
+    media: ["assets/works/j06/01.jpg", "assets/works/j06/02.jpg", "assets/works/j06/03.jpg"],
+    summary: "JogaKbo+ is a local design sharing platform that bridges traditional textile techniques with modern collaboration. Non-designers can design textile patterns, share their creations, and connect with local artisans for production or DIY crafting, while upcycling and sustainable materials encourage responsible consumption. The platform also works as an educational hub, introducing natural dyeing with locally sourced materials such as repurposed tea leaves or onion skins — fostering a community-driven design culture that reduces overproduction."
   },
   // ── 연구 논문 (HED LAB publications) ──
   {
