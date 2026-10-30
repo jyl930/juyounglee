@@ -53,11 +53,11 @@ way into its page:
 
 | Stage | Drawing | Hover | Click |
 |---|---|---|---|
-| **01 Material & Ideation** | soft particles (non-digital): material samples that pool, scatter into grains or pull into fibres; ringed dots are loose ideas | particles stir around the cursor; a sample/idea shows its title | `#/material` (or the work itself) |
+| **01 Exhibition** | soft particles (non-digital): material samples that pool, scatter into grains or pull into fibres; ringed dots are loose ideas | particles stir around the cursor; a sample/idea shows its title | `#/material` (or the work itself) |
 | **02 Conferences & Awards** | crossing into the digital, drops become crisp pixels (with a short signal trail) and travel a neuron-like network: the conference talks and awards are cell bodies scattered in a narrowing funnel, joined by organic swaying fibres, and its dendrites reach back into the material clusters (cell mark: solid = award · □ presentation · ◇ conference) | node shows title, venue, year | `#/conferences` |
 | **03 Publications** | pixels drift into a field of depth: soft, edgeless clouds of points (one per paper) at different heights, seen in perspective with fog and slowly turning — a sense of space, not a model | the cursor shifts the viewpoint; a layer turns red and shows its paper | the paper |
 
-No dividing lines between stages — only two faint words mark the thresholds. Soft particles use an SVG "goo" filter (blur + alpha threshold) so they
+No dividing lines or labels between stages. Soft particles use an SVG "goo" filter (blur + alpha threshold) so they
 merge like liquid; everything digital is drawn crisp. Stage counts and nodes
 come from `js/data.js` (`PROJECTS` material/paper, `IDEAS`, `TALKS`). Respects
 `prefers-reduced-motion`. The build-up plays at full
