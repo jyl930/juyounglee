@@ -83,14 +83,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .stage-links { position: absolute; inset: 0; pointer-events: none; }
 .stage-links a {
   position: absolute; pointer-events: auto; color: var(--mid);
-  display: flex; flex-direction: column; gap: 2px; transition: color .25s;
+  display: flex; flex-direction: column; gap: 2px; transition: color .6s ease;
   background: #fff; box-shadow: 0 0 0 6px #fff;
 }
 .stage-links a small { text-transform: none; letter-spacing: 0; font-family: var(--sans); font-size: 12px; color: var(--faint); }
-.stage-links a b { font-weight: 400; color: var(--faint); margin-right: 8px; }
+.stage-links a b { font-weight: 400; color: var(--faint); margin-right: 8px; transition: color .6s ease; }
 .stage-links a.on, .stage-links a:hover { color: var(--ink); }
 .stage-links a.on b { color: var(--accent); }
-.stage-links a i { font-style: normal; color: var(--faint); margin-left: 6px; }
+.stage-links a i { font-style: normal; color: var(--faint); margin-left: 6px; transition: color .6s ease; }
 .stage-links a.on i { color: var(--accent); }
 .intro-tip {
   position: absolute; pointer-events: none; z-index: 3; max-width: 260px;

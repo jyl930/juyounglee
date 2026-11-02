@@ -261,11 +261,18 @@
   }
 
   const PIX = 5, snap = v => Math.round(v / PIX) * PIX;   // depth-field pixel grid
+  const emph = [1, 1, 1]; let yearsA = 0;
+  const rgb = h => { h = h.slice(1); if (h.length === 3) h = [...h].map(c => c + c).join(""); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
+  const tone = (i, a, b) => { const A = rgb(a), B = rgb(b), k = emph[i]; return `rgb(${B.map((v, j) => Math.round(v + (A[j] - v) * k)).join(",")})`; };
   const dot = (ctx, x, y, r) => { ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2); };
 
   function draw(dt) {
     g.clearRect(0, 0, W, H); f.clearRect(0, 0, W, H);
-    const hz = hoverZone, on = i => hz < 0 || hz === i;
+    const hz = hoverZone;
+    // each stage's emphasis eases toward its target, so hovering from one stage to the next
+    // cross-fades (one slowly darkens while the other slowly fades) instead of switching at once
+    emph.forEach((e, i) => { emph[i] += ((hz < 0 || hz === i ? 1 : 0) - e) * Math.min(1, dt * 4); });
+    yearsA += ((hz === 1 ? 1 : 0) - yearsA) * Math.min(1, dt * 4);
     [...linksEl.children].forEach((a, i) => a.classList.toggle("on", hz === i));
 
     /* 01 — material */
@@ -280,7 +287,7 @@
     };
     clusters.forEach(c => {
       const hot = hit && hit.cluster === c;
-      g.fillStyle = on(0) ? INK : DIM; g.beginPath();
+      g.fillStyle = tone(0, INK, DIM); g.beginPath();
       c.parts.forEach((p, i) => {
         const [x, y] = particlePos(c, p, t);
         push(p, x, y);
@@ -289,11 +296,11 @@
       });
       g.fill();
     });
-    g.fillStyle = on(0) ? INK : DIM; g.beginPath();
+    g.fillStyle = tone(0, INK, DIM); g.beginPath();
     ideas.forEach(d => { const [x, y] = ideaPos(d, t); dot(g, x, y, 3.8 * k1); });
     g.fill();
     // ideas carry a thin ring, so they read as loose thoughts, not matter
-    f.strokeStyle = on(0) ? MID : DIM; f.lineWidth = 0.75;
+    f.strokeStyle = tone(0, MID, DIM); f.lineWidth = 0.75;
     ideas.forEach(d => { const [x, y] = ideaPos(d, t); f.globalAlpha = k1; f.beginPath(); f.arc(x, y, 9, 0, Math.PI * 2); f.stroke(); });
     f.globalAlpha = 1;
 
@@ -305,7 +312,7 @@
         const reveal = clamp(k2 * 1.25 - (e.kind === "exit" ? 0.25 : e.kind === "syn" ? 0.2 : 0)), pts = e.pts;
         if (reveal <= 0) return;
         f.lineWidth = 0.8;
-        f.strokeStyle = e.kind === "syn" ? (on(1) ? "#d6d6d6" : "#ececec") : on(1) ? "#b0b0b0" : "#e2e2e2";
+        f.strokeStyle = e.kind === "syn" ? (tone(1, "#d6d6d6", "#ececec")) : tone(1, "#b0b0b0", "#e2e2e2");
         let left = e.len * reveal;
         f.beginPath(); f.moveTo(pts[0][0], pts[0][1]);
         for (let i = 1; i < pts.length && left > 0; i++) {
@@ -315,7 +322,7 @@
         f.stroke();
         // fibres thicken where they meet a cell body (goo turns the taper into flesh)
         if (e.kind !== "syn" && reveal >= 1) {
-          g.fillStyle = on(1) ? INK : DIM; g.beginPath();
+          g.fillStyle = tone(1, INK, DIM); g.beginPath();
           const n = pts.length - 1, m = 7;
           for (let j = 0; j < m; j++) {
             const r = lerp(2.8, 0.6, j / m);
@@ -332,7 +339,7 @@
         const kind = n.item && n.item.award ? "Award" : "Presentation";
         // cell body: a soft blob with a few lobes that breathe
         const r = (kind === "Award" ? 8 : 6.5) * kn + (hot ? 1.5 : 0);
-        g.fillStyle = hot ? ACCENT : on(1) ? INK : DIM; g.beginPath(); dot(g, x, y, r);
+        g.fillStyle = hot ? ACCENT : tone(1, INK, DIM); g.beginPath(); dot(g, x, y, r);
         for (let j = 0; j < 3; j++) {
           const a = n.ph + j * 2.1 + (still ? 0 : Math.sin(t * 0.8 + n.ph + j) * 0.4);
           dot(g, x + Math.cos(a) * r * 0.55, y + Math.sin(a) * r * 0.55, r * 0.55);
@@ -342,7 +349,7 @@
         f.fillStyle = "#fff"; f.beginPath();
         if (kind === "Presentation") f.rect(x - 1.6, y - 1.6, 3.2, 3.2);
         f.fill();
-        if (n.item && hz === 1) { f.font = '9px "Noto Sans", Inter, sans-serif'; f.fillStyle = MID; f.textAlign = "left"; f.fillText(String(Math.floor(n.item.year)), x + 10, y - 10); }
+        if (n.item && yearsA > 0.01) { f.globalAlpha = yearsA; f.font = '9px "Noto Sans", Inter, sans-serif'; f.fillStyle = MID; f.textAlign = "left"; f.fillText(String(Math.floor(n.item.year)), x + 10, y - 10); f.globalAlpha = 1; }
       });
     }
 
@@ -363,7 +370,7 @@
         const [x, y, sd] = layerPt(L, p, view, t);
         const fog = clamp((sd - 0.7) / 0.55);           // farther = fainter
         f.globalAlpha = appear * (0.15 + 0.85 * fog);
-        f.fillStyle = p.lit ? (hot ? ACCENT : on(2) ? INK : DIM) : hot ? "#9a9a9a" : "#cfcfcf";
+        f.fillStyle = p.lit ? (hot ? ACCENT : tone(2, INK, DIM)) : hot ? "#9a9a9a" : "#cfcfcf";
         // pixel art: every point snaps to an invisible grid and is drawn as a square
         const px = snap(x), py = snap(y), r = Math.max(1, Math.round((p.lit ? 2.2 : 1.2) * sd));
         f.fillRect(px - r, py - r, r * 2, r * 2);
