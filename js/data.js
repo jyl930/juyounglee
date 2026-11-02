@@ -221,7 +221,7 @@ window.PROJECTS = [
     id: "j02", type: "project", year: 2023.85,
     title: "RE:Plastiground",
     venue: "20th Graduation Exhibition, Interior Architecture Design, Hanyang University (2023)",
-    role: "Team leader — with Ju Yeon Lee, Mee So Lim",
+    role: "with Ju Yeon Lee, Mee So Lim",
     award: "Kyoto Global Design Awards 2023, Environment · Larsen Architecture, Most Innovative Student Project of the Year · KIID Fall Conference 2023 Best Paper Presentation Award",
     media: ["assets/works/j02/01.jpg", "assets/works/j02/02.mp4", "assets/works/j02/03.mp4", "assets/works/j02/04.mp4", "assets/works/j02/05.jpg", "assets/works/j02/06.jpg", "assets/works/j02/07.jpg", "assets/works/j02/08.jpg", "assets/works/j02/09.jpg", "assets/works/j02/10.jpg", "assets/works/j02/11.jpg", "assets/works/j02/12.jpg", "assets/works/j02/13.jpg", "assets/works/j02/14.jpg", "assets/works/j02/15.jpg"],
     summary: "RE:Plastiground — where plastic meets play — is an experiential recycling factory. Visitors meet giant bales of discarded plastic, watch it cleaned, sorted and shredded in a working Real Factory, and see it reborn as pellets that creators turn into new products in an upcycling factory. Plastic from nearby screening facilities returns to people as floors, furniture and merchandise, and the programme is structured around Csikszentmihalyi's flow theory so the experience becomes a lasting memory. The building itself follows the logic of plastic flakes — one whole massive plastic to walk through."

@@ -254,12 +254,13 @@
     t = still ? 30 : clock((now - t0) / 1000);
     const dt = Math.min(0.05, (now - lastNow) / 1000); lastNow = now;
     if (!still && t > T_FLOW) {
-      const rate = 0.36 - 0.24 * clamp((t - T_FLOW) / 4);
+      const rate = 0.7 - 0.4 * clamp((t - T_FLOW) / 4);  // fewer drops cross from 01 to 02
       while (nextSpawn < t) { spawn(t); nextSpawn = Math.max(nextSpawn, t - 1) + rate; }
     }
     draw(dt);
   }
 
+  const PIX = 5, snap = v => Math.round(v / PIX) * PIX;   // depth-field pixel grid
   const dot = (ctx, x, y, r) => { ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2); };
 
   function draw(dt) {
@@ -363,7 +364,9 @@
         const fog = clamp((sd - 0.7) / 0.55);           // farther = fainter
         f.globalAlpha = appear * (0.15 + 0.85 * fog);
         f.fillStyle = p.lit ? (hot ? ACCENT : on(2) ? INK : DIM) : hot ? "#9a9a9a" : "#cfcfcf";
-        f.beginPath(); dot(f, x, y, (p.lit ? 2.4 : 1.3) * sd); f.fill();
+        // pixel art: every point snaps to an invisible grid and is drawn as a square
+        const px = snap(x), py = snap(y), r = Math.max(1, Math.round((p.lit ? 2.2 : 1.2) * sd));
+        f.fillRect(px - r, py - r, r * 2, r * 2);
       });
     });
     f.globalAlpha = 1;
@@ -386,10 +389,10 @@
         else {
           const k = clamp(d / (110 * sc)), last = q.route[q.route.length - 1].pts, end = last[last.length - 1];
           const L = layers[q.layer], [tx, ty, sd] = layerPt(L, L.pts[q.pt], view, t);
-          x = lerp(end[0], tx, ease(k)); y = lerp(end[1], ty, ease(k)) - Math.sin(Math.PI * k) * 20 * sc;
+          x = lerp(end[0], snap(tx), ease(k)); y = lerp(end[1], snap(ty), ease(k)) - Math.sin(Math.PI * k) * 20 * sc;
           if (k >= 1) { land(q); return false; }
-          const r = lerp(2, 1.6 * sd, k);                 // the pixel softens into a point as it enters the depth
-          if (k < 0.5) f.rect(x - r, y - r, r * 2, r * 2); else dot(f, x, y, r);
+          const r = lerp(2, Math.max(1, Math.round(2.2 * sd)), k);   // the pixel stays square and settles into its grid cell
+          f.rect(x - r, y - r, r * 2, r * 2);
           return true;
         }
       }
