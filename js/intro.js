@@ -313,13 +313,24 @@
         if (reveal <= 0) return;
         f.lineWidth = 0.8;
         f.strokeStyle = e.kind === "syn" ? (tone(1, "#d6d6d6", "#ececec")) : tone(1, "#b0b0b0", "#e2e2e2");
-        let left = e.len * reveal;
-        f.beginPath(); f.moveTo(pts[0][0], pts[0][1]);
+        let left = e.len * reveal, run = 0;
+        // a line that starts or ends in open space (from 01, toward 03) fades out at that end,
+        // so the stages seem to grow into one another instead of being wired together
+        const free = !e.from || !e.to, FADE = 0.35;
+        if (!free) { f.beginPath(); f.moveTo(pts[0][0], pts[0][1]); }
         for (let i = 1; i < pts.length && left > 0; i++) {
           const l = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]), q = Math.min(1, left / l);
-          f.lineTo(lerp(pts[i - 1][0], pts[i][0], q), lerp(pts[i - 1][1], pts[i][1], q)); left -= l;
+          const x = lerp(pts[i - 1][0], pts[i][0], q), y = lerp(pts[i - 1][1], pts[i][1], q);
+          if (free) {
+            const u = (run + l * q / 2) / e.len;
+            let a = 1;
+            if (!e.from) a *= ease(clamp(u / FADE));
+            if (!e.to) a *= ease(clamp((1 - u) / FADE));
+            f.globalAlpha = a; f.beginPath(); f.moveTo(pts[i - 1][0], pts[i - 1][1]); f.lineTo(x, y); f.stroke();
+          } else f.lineTo(x, y);
+          run += l; left -= l;
         }
-        f.stroke();
+        if (free) f.globalAlpha = 1; else f.stroke();
         // fibres thicken where they meet a cell body (goo turns the taper into flesh)
         if (e.kind !== "syn" && reveal >= 1) {
           g.fillStyle = tone(1, INK, DIM); g.beginPath();
